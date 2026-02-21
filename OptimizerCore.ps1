@@ -72,13 +72,20 @@ function Draw-Separator {
 
 function Draw-Header {
     Clear-Host; Write-Host "`n"
-    Show-Center "   _______  _______  _______  _______  _______  _____  _______ " "Cyan"
-    Show-Center "  |     ||  _    ||       ||       ||       ||     ||       |" "Cyan"
-    Show-Center "  |  _  || |_|   ||_     _||_     _||    _  ||  _  ||_     _|" "Cyan"
-    Show-Center "  | | | ||       |  |   |    |   |  |   |_| || | | |  |   |  " "Cyan"
-    Show-Center "  | |_| ||  _   |   |   |    |   |  |    ___|| |_| |  |   |  " "Cyan"
-    Show-Center "  |     || |_|   |  |   |   _|   |_ |   |    |     |  |   |  " "Cyan"
-    Show-Center "  |_____||_______|  |___|  |_______||___|    |_____|  |___|  " "Cyan"
+    Show-Center "  _______  __   __  _______  _______  _______  __   __  " "Cyan"
+    Show-Center " |       ||  | |  ||       ||       ||       ||  |_|  | " "Cyan"
+    Show-Center " |  _____||  |_|  ||  _____||_     _||    ___||       | " "Cyan"
+    Show-Center " | |_____ |       || |_____   |   |  |   |___ |       | " "Cyan"
+    Show-Center " |_____  ||_     _||_____  |  |   |  |    ___||       | " "Cyan"
+    Show-Center "  _____| |  |   |   _____| |  |   |  |   |___ | ||_|| | " "Cyan"
+    Show-Center " |_______|  |___|  |_______|  |___|  |_______||_|   |_| " "Cyan"
+    Show-Center "  _______  _______  _______  ___  __   __  ___  _______  _______  ______   " "Cyan"
+    Show-Center " |       ||       ||       ||   ||  |_|  ||   ||       ||       ||    _ |  " "Cyan"
+    Show-Center " |   _   ||    _  ||_     _||   ||       ||   ||____   ||    ___||   | ||  " "Cyan"
+    Show-Center " |  | |  ||   |_| |  |   |  |   ||       ||   ||____|  ||   |___ |   |_||_ " "Cyan"
+    Show-Center " |  |_|  ||    ___|  |   |  |   ||       ||   || ______||    ___||    __  |" "Cyan"
+    Show-Center " |       ||   |      |   |  |   || ||_|| ||   || |_____ |   |___ |   |  | |" "Cyan"
+    Show-Center " |_______||___|      |___|  |___||_|   |_||___||_______||_______||___|  |_|" "Cyan"
     Write-Host ""
     Show-Center " COMMAND CENTER $Version " "DarkGray"
     Write-Host "`n"
@@ -632,3 +639,4 @@ do {
         '6' { exit }
     }
 } while ($true)
+
