@@ -2,6 +2,17 @@
 
 Todas as mudanças e evoluções do System Optimizer serão documentadas aqui.
 
+## [v58.0] - External JSON & Customization
+### Adicionado
+- **Dicionário em JSON Externo:** O banco de dados de idiomas (`lang.json`) foi extraído para fora do script principal. Isso limpa mais de 300 linhas de código do núcleo e permite que a comunidade adicione novos idiomas no GitHub (ex: Italiano) sem alterar uma vírgula do motor PowerShell.
+- **Auto-Update de JSON:** A função de sincronização em nuvem agora também baixa as atualizações e novas chaves do `lang.json` caso elas sejam alteradas no repositório.
+- **Backup de Drivers**: Adicionada a ferramenta de Backup na Página 2 (Avançado). Com um clique, os drivers da máquina são extraídos via `DISM/Export-WindowsDriver` para a pasta `C:\Backup_Drivers`.
+- **Criador de Atalhos**: Nova função no menu de Ajustes que cria automaticamente um atalho na Área de Trabalho com o ícone de engrenagem nativo do Windows.
+
+### Modificado
+- **Motor de Idioma em Tempo Real**: O código utiliza troca instantânea (`$global:UserLang`). Ao selecionar um novo idioma, o menu redesenha na hora, sem fechar o programa.
+- **UX no Seletor**: A tela de primeiro acesso agora utiliza um efeito visual de Pirâmide, ordenando as linguagens do maior texto para o menor.
+
 ## [v56.0] - A Era Global & Lite Mode
 ### Adicionado
 - **Suporte Multi-idioma (i18n)**: Implementação de arquitetura baseada em Dicionário de Variáveis (Hash Table). O sistema agora suporta nativamente PT-BR, EN, ES e FR no Menu Principal, salvando a preferência do usuário automaticamente no arquivo `lang.ini`.
