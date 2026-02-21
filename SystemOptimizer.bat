@@ -27,7 +27,7 @@ if exist "%~dp0OptimizerCore.ps1" (
 ) else (
     color 0C
     echo [ERRO] O arquivo 'OptimizerCore.ps1' nao foi encontrado na mesma pasta!
-    echo Verifique se voce renomeou o arquivo antigo 'MotorLimpeza.ps1' para 'OptimizerCore.ps1'.
+    echo Certifique-se de que o SystemOptimizer.bat e o OptimizerCore.ps1 estao juntos.
     pause
 )
 exit
