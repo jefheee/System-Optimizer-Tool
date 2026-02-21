@@ -1,10 +1,13 @@
 # =================================================================
-# MOTOR DE OTIMIZACAO V53 (STABILITY & EXTENDED TOOLS)
+# MOTOR DE OTIMIZACAO V54 (TITAN ULTIMATE - AUTO-FIX)
 # =================================================================
 $ErrorActionPreference = 'SilentlyContinue'
 $FixedW = 100 
-$Version = "V53"
+$Version = "V54"
+# LINK RAW CORRIGIDO (Obrigatorio ser raw.githubusercontent)
 $UpdateURL = "https://raw.githubusercontent.com/jefheee/System-Optimizer-Tool/main/MotorLimpeza.ps1"
+# CAPTURA O CAMINHO SEGURO DO SCRIPT
+$ScriptPath = $PSCommandPath
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -152,18 +155,75 @@ function Start-AutoUpdate {
     Show-Center "Configurando seguranca de conexao (TLS 1.2)..." "DarkGray"
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     Show-Center "Verificando atualizacoes no GitHub..." "Cyan"
+    
     try {
+        # Usa UseBasicParsing para compatibilidade e baixa o texto puro
         $NewScript = Invoke-RestMethod -Uri $UpdateURL -UseBasicParsing
+        
+        # Verifica se o conteúdo baixado parece ser o script
         if ($NewScript -match "SYSTEM OPTIMIZER") {
-            Set-Content -Path $MyInvocation.MyCommand.Path -Value $NewScript
+            # Usa a variável global $ScriptPath que capturamos no inicio
+            Set-Content -Path $global:ScriptPath -Value $NewScript -Force
             Show-Center "Atualizado com sucesso! Reinicie o script." "Green"
         } else {
-            Show-Center "Nenhuma atualizacao encontrada." "Yellow"
+            Show-Center "Conteudo invalido. Verifique se o link e RAW." "Red"
         }
     } catch {
         Show-Center "Erro ao conectar: $($_.Exception.Message)" "Red"
     }
     Wait-User
+}
+
+function Start-TakeOwnership {
+    Show-Center "Adicionando 'Tomar Posse' ao menu de contexto..." "Cyan"
+    # Adiciona chaves de registro para Arquivos e Pastas
+    $RegFile = "HKCR\*\shell\runas"; $RegDir = "HKCR\Directory\shell\runas"
+    New-Item -Path $RegFile -Force | Out-Null
+    Set-ItemProperty -Path $RegFile -Name "(default)" -Value "Tomar Posse"
+    Set-ItemProperty -Path $RegFile -Name "Icon" -Value "imageres.dll,-78"
+    New-Item -Path "$RegFile\command" -Force | Out-Null
+    Set-ItemProperty -Path "$RegFile\command" -Name "(default)" -Value "cmd.exe /c takeown /f `"%1`" && icacls `"%1`" /grant administrators:F"
+    
+    New-Item -Path $RegDir -Force | Out-Null
+    Set-ItemProperty -Path $RegDir -Name "(default)" -Value "Tomar Posse"
+    Set-ItemProperty -Path $RegDir -Name "Icon" -Value "imageres.dll,-78"
+    New-Item -Path "$RegDir\command" -Force | Out-Null
+    Set-ItemProperty -Path "$RegDir\command" -Name "(default)" -Value "cmd.exe /c takeown /f `"%1`" /r /d y && icacls `"%1`" /grant administrators:F /t"
+    
+    Show-Center "Funcao adicionada! Clique com botao direito em qualquer arquivo." "Green"
+    Start-Sleep 3
+}
+
+function Start-RAMBackground {
+    Show-Center "Iniciando Job de Limpeza de RAM em 2o plano..." "Cyan"
+    $JobCode = {
+        $Kernel32 = @"
+        using System;
+        using System.Runtime.InteropServices;
+        public class Win32 { [DllImport("psapi.dll")] public static extern int EmptyWorkingSet(IntPtr hwProc); }
+"@
+        Add-Type -TypeDefinition $Kernel32 -PassThru | Out-Null
+        while($true) {
+            foreach ($P in Get-Process) { try { [void][Win32]::EmptyWorkingSet($P.Handle) } catch {} }
+            [System.GC]::Collect()
+            Start-Sleep -Seconds 600 # Roda a cada 10 min
+        }
+    }
+    Start-Job -ScriptBlock $JobCode -Name "RamOptimizer"
+    Show-Center "Ativado! Limpeza automatica a cada 10 minutos." "Green"
+    Start-Sleep 2
+}
+
+function Start-DefenderExclusion {
+    Show-Center "Cole o caminho da pasta do jogo (ex: C:\Jogos\CS2):" "White"
+    $Path = Read-Host
+    if (Test-Path $Path) {
+        Add-MpPreference -ExclusionPath $Path
+        Show-Center "Pasta adicionada as exclusoes do Defender!" "Green"
+    } else {
+        Show-Center "Pasta nao encontrada." "Red"
+    }
+    Start-Sleep 2
 }
 
 function Start-BottleneckTest {
@@ -201,8 +261,6 @@ function Start-JitterTest {
     else { Show-Center "Internet INSTAVEL (Muitos picos de lag)." "Red" }
     Wait-User
 }
-
-# --- FUNÇÕES ADICIONAIS (IDEIAS NOVAS) ---
 
 function Start-AppxRestore {
     Show-Center "Reinstalando aplicativos nativos do Windows (Pode demorar)..." "Cyan"
@@ -372,9 +430,11 @@ function Modulo-Gamer {
         Draw-Separator
         Draw-Menu-Item "6" "OTIMIZAR TECLADO" "GAMER" "Garante resposta rapida ao segurar teclas"
         Draw-Separator
-        Draw-Menu-Item "7" "TESTAR ESTABILIDADE PING" "GAMER" "Descubra se sua internet trava jogos"
+        Draw-Menu-Item "7" "REDUZIR PACOTES REDE" "GAMER" "Otimiza o registro TCP para jogos online"
         Draw-Separator
-        Draw-Menu-Item "8" "MONITOR DE GARGALO" "GAMER" "Veja se o Processador limita seu jogo"
+        Draw-Menu-Item "8" "RAM AUTO-CLEAN (JOB)" "GAMER" "Limpa a RAM sozinho a cada 10 min"
+        Draw-Separator
+        Draw-Menu-Item "9" "DEFENDER EXCLUSION" "GAMER" "Impede o antivirus de travar seu jogo"
         Draw-Separator
         Draw-Menu-Item "0" "VOLTAR" "---" "Retornar ao Menu Inicial"
         
@@ -392,8 +452,9 @@ function Modulo-Gamer {
                 Show-Center "Aceleracao desativada. Precisao 1:1 aplicada perfeitamente." "Green"; Start-Sleep 2 
             }
             '6' { Start-FilterKeys; Start-Sleep 2 }
-            '7' { Start-JitterTest }
-            '8' { Start-BottleneckTest }
+            '7' { Start-NetworkPacketReducer; Start-Sleep 2 }
+            '8' { Start-RAMBackground }
+            '9' { Start-DefenderExclusion }
             '0' { return }
         }
     } while ($true)
@@ -459,7 +520,7 @@ function Modulo-SystemTools-Pag2 {
         Draw-Separator
         Draw-Menu-Item "3" "DESATIVAR IA E COPILOT" "SISTEMA" "Remove recursos de IA do Windows"
         Draw-Separator
-        Draw-Menu-Item "4" "REDUZIR PACOTES REDE" "SISTEMA" "Otimiza envio de dados TCP"
+        Draw-Menu-Item "4" "ADD TOMAR POSSE (MENU)" "SISTEMA" "Adiciona opcao de dono no botao direito"
         Draw-Separator
         Draw-Menu-Item "5" "ATUALIZAR SCRIPT" "SISTEMA" "Baixa a versao mais recente do GitHub"
         Draw-Separator
@@ -471,7 +532,7 @@ function Modulo-SystemTools-Pag2 {
             '1' { Start-AppxRestore; Start-Sleep 2 }
             '2' { Start-NetAdapterReset }
             '3' { Start-CopilotToggle; Start-Sleep 2 }
-            '4' { Start-NetworkPacketReducer; Start-Sleep 2 }
+            '4' { Start-TakeOwnership }
             '5' { Start-AutoUpdate }
             '0' { return }
         }
