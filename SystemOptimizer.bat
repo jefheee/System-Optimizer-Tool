@@ -1,5 +1,5 @@
 @echo off
-title SYSTEM OPTIMIZER [V57 LAUNCHER]
+title SYSTEM OPTIMIZER [V58 LAUNCHER]
 mode con: cols=120 lines=55
 color 0B
 
@@ -27,7 +27,7 @@ if exist "%~dp0OptimizerCore.ps1" (
 ) else (
     color 0C
     echo [ERRO] O arquivo 'OptimizerCore.ps1' nao foi encontrado na mesma pasta!
-    echo Verifique se voce renomeou o arquivo antigo 'MotorLimpeza.ps1' para 'OptimizerCore.ps1'.
+    echo Verifique se voce renomeou o arquivo antigo para 'OptimizerCore.ps1'.
     pause
 )
 exit
