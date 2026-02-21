@@ -1,26 +1,104 @@
 # =================================================================
-# SYSTEM OPTIMIZER CORE V55 (TITAN LEGACY - FULL FEATURES)
+# SYSTEM OPTIMIZER CORE V56 (GLOBAL & LITE PROTOCOL)
 # =================================================================
 $ErrorActionPreference = 'SilentlyContinue'
 $FixedW = 100 
-$Version = "V55"
+$Version = "V56"
 
-# --- FIX DE UPDATE E PATH (Blindagem contra Path Nulo) ---
-if ($PSScriptRoot) {
-    $ScriptPath = $PSScriptRoot
-} else {
-    $ScriptPath = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
-}
-# Define o arquivo atual para auto-update funcionar independente do nome
+# --- FIX DE UPDATE E PATH ---
+if ($PSScriptRoot) { $ScriptPath = $PSScriptRoot } else { $ScriptPath = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition }
 $CurrentFile = $MyInvocation.MyCommand.Definition
 
-# LINK RAW (Certifique-se que o nome no GitHub sera OptimizerCore.ps1)
+# URLs DE SINCRONIZACAO
 $UpdateURL = "https://raw.githubusercontent.com/jefheee/System-Optimizer-Tool/main/OptimizerCore.ps1"
+$ChangelogURL = "https://raw.githubusercontent.com/jefheee/System-Optimizer-Tool/main/CHANGELOG.md"
+$ReadmeURL = "https://raw.githubusercontent.com/jefheee/System-Optimizer-Tool/main/README.md"
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-# --- CÓDIGO C# (TIMER & MEMORY CLEANER) ---
+# ================= MOTOR DE IDIOMAS (i18n) =================
+
+$LangFile = "$ScriptPath\lang.ini"
+
+# Seletor de Idioma na primeira inicializacao
+if (-not (Test-Path $LangFile)) {
+    Clear-Host
+    Write-Host "`n"
+    Write-Host "   Select your language / Selecione seu idioma:" -ForegroundColor Cyan
+    Write-Host "   [1] Portugues (PT-BR)" -ForegroundColor White
+    Write-Host "   [2] English (EN)" -ForegroundColor White
+    Write-Host "   [3] Espanol (ES)" -ForegroundColor White
+    Write-Host "   [4] Francais (FR)" -ForegroundColor White
+    Write-Host "`n"
+    $choice = Read-Host "   Option/Opcao"
+    
+    switch ($choice) {
+        '2' { Set-Content $LangFile "EN" }
+        '3' { Set-Content $LangFile "ES" }
+        '4' { Set-Content $LangFile "FR" }
+        Default { Set-Content $LangFile "PT" }
+    }
+}
+
+$UserLang = Get-Content $LangFile
+
+# Dicionario Global de Textos
+$Dict = @{
+    "PT" = @{
+        "M_Opt" = "OTIMIZAR AGORA (SSD)"; "D_Opt" = "Esvazia lixeira, limpa sistema e melhora RAM"
+        "M_Lite" = "OTIMIZACAO LITE (HDD)"; "D_Lite" = "Limpeza segura para discos antigos (Sem TRIM)"
+        "M_Gamer" = "FERRAMENTAS GAMER"; "D_Gamer" = "Aumenta FPS, tira lag do mouse e otimiza rede"
+        "M_Sys" = "FERRAMENTAS SISTEMA"; "D_Sys" = "Repara erros, arruma internet e apaga inuteis"
+        "M_Act" = "ATIVADOR WINDOWS"; "D_Act" = "Ativa o Windows e o pacote Office para sempre"
+        "M_Diag" = "DIAGNOSTICO PC"; "D_Diag" = "Mostra as pecas, gargalo e saude do sistema"
+        "M_Exit" = "SAIR"; "D_Exit" = "Fechar e Sair do Otimizador"
+        "Choose" = "Escolha uma opcao digitando o numero:"
+        "Wait" = "Pressione qualquer tecla para voltar..."
+        "Back" = "VOLTAR" ; "D_Back" = "Retornar ao menu anterior"
+    }
+    "EN" = @{
+        "M_Opt" = "OPTIMIZE NOW (SSD)"; "D_Opt" = "Empty bin, clean system, and boost RAM"
+        "M_Lite" = "LITE OPTIMIZATION (HDD)"; "D_Lite" = "Safe cleanup for older drives (No TRIM)"
+        "M_Gamer" = "GAMING TOOLS"; "D_Gamer" = "Boost FPS, fix mouse lag, and optimize network"
+        "M_Sys" = "SYSTEM TOOLS"; "D_Sys" = "Fix errors, network tweaks, and debloat"
+        "M_Act" = "WINDOWS ACTIVATOR"; "D_Act" = "Permanent system and Office activation (MAS)"
+        "M_Diag" = "PC DIAGNOSTICS"; "D_Diag" = "Hardware info, bottleneck, and health"
+        "M_Exit" = "EXIT"; "D_Exit" = "Close Command Center"
+        "Choose" = "Choose an option by typing the number:"
+        "Wait" = "Press any key to return..."
+        "Back" = "BACK" ; "D_Back" = "Return to previous menu"
+    }
+    "ES" = @{
+        "M_Opt" = "OPTIMIZAR AHORA (SSD)"; "D_Opt" = "Vacia papelera, limpia sistema y mejora RAM"
+        "M_Lite" = "OPTIMIZACION LITE (HDD)"; "D_Lite" = "Limpieza segura para discos antiguos (Sin TRIM)"
+        "M_Gamer" = "HERRAMIENTAS GAMER"; "D_Gamer" = "Aumenta FPS, quita lag de mouse y optimiza red"
+        "M_Sys" = "HERRAMIENTAS SISTEMA"; "D_Sys" = "Repara errores, red y elimina basura"
+        "M_Act" = "ACTIVADOR WINDOWS"; "D_Act" = "Activacion permanente de Windows y Office"
+        "M_Diag" = "DIAGNOSTICO PC"; "D_Diag" = "Muestra hardware, cuello de botella y salud"
+        "M_Exit" = "SALIR"; "D_Exit" = "Cerrar Command Center"
+        "Choose" = "Elige una opcion escribiendo el numero:"
+        "Wait" = "Presiona cualquier tecla para volver..."
+        "Back" = "VOLVER" ; "D_Back" = "Regresar al menu anterior"
+    }
+    "FR" = @{
+        "M_Opt" = "OPTIMISER (SSD)"; "D_Opt" = "Vider la corbeille, nettoyer le systeme et la RAM"
+        "M_Lite" = "OPTIMISATION LITE (HDD)"; "D_Lite" = "Nettoyage securise pour vieux disques (Sans TRIM)"
+        "M_Gamer" = "OUTILS GAMING"; "D_Gamer" = "Boost FPS, reduire le lag et optimiser le reseau"
+        "M_Sys" = "OUTILS SYSTEME"; "D_Sys" = "Reparer erreurs, reseau et supprimer bloatware"
+        "M_Act" = "ACTIVATEUR WINDOWS"; "D_Act" = "Activation permanente de Windows et Office"
+        "M_Diag" = "DIAGNOSTIC PC"; "D_Diag" = "Infos materiel, goulots d'etranglement et sante"
+        "M_Exit" = "QUITTER"; "D_Exit" = "Fermer Command Center"
+        "Choose" = "Choisissez une option en tapant le numero :"
+        "Wait" = "Appuyez sur une touche pour revenir..."
+        "Back" = "RETOUR" ; "D_Back" = "Retour au menu precedent"
+    }
+}
+
+function Get-Text($key) { return $Dict[$UserLang][$key] }
+
+# ================= CÓDIGO C# E VISUAL =================
+
 $Kernel32 = @"
 using System;
 using System.Runtime.InteropServices;
@@ -33,7 +111,6 @@ public class Win32 {
 "@
 try { Add-Type -TypeDefinition $Kernel32 -PassThru | Out-Null } catch {}
 
-# --- VISUAL E ALINHAMENTO ---
 try {
     $RawUI = $Host.UI.RawUI
     $Buf = $RawUI.BufferSize
@@ -66,9 +143,7 @@ function Show-Pyramid {
     foreach ($Item in $Sorted) { Show-Center $Item $Color }
 }
 
-function Draw-Separator {
-    Show-Center "--------------------------------------------------------------------------------" "DarkGray"
-}
+function Draw-Separator { Show-Center "--------------------------------------------------------------------------------" "DarkGray" }
 
 function Draw-Header {
     Clear-Host; Write-Host "`n"
@@ -87,7 +162,7 @@ function Draw-Header {
     Show-Center " |       ||   |      |   |  |   || ||_|| ||   || |_____ |   |___ |   |  | |" "Cyan"
     Show-Center " |_______||___|      |___|  |___||_|   |_||___||_______||_______||___|  |_|" "Cyan"
     Write-Host ""
-    Show-Center " COMMAND CENTER $Version " "DarkGray"
+    Show-Center " COMMAND CENTER $Version | LANG: $UserLang " "DarkGray"
     Write-Host "`n"
 }
 
@@ -96,12 +171,13 @@ function Draw-Menu-Item {
     $PadStart = " " * 8
     Write-Host "$PadStart" -NoNewline
     Write-Host "[$Num] " -NoNewline -ForegroundColor Cyan
-    $T = "$Title".PadRight(26)
+    $T = "$Title".PadRight(28)
     Write-Host "$T" -NoNewline -ForegroundColor White
     $A = "[$Action]".PadRight(12)
     
     $AColor = "DarkGray"
     if ($Action -eq "LIMPEZA") { $AColor = "Green" }
+    elseif ($Action -eq "LITE") { $AColor = "Green" }
     elseif ($Action -eq "GAMER") { $AColor = "Magenta" }
     elseif ($Action -eq "SISTEMA") { $AColor = "Yellow" }
     elseif ($Action -eq "INFO") { $AColor = "Cyan" }
@@ -113,7 +189,7 @@ function Draw-Menu-Item {
 }
 
 function Wait-User {
-    Write-Host "`n"; Show-Center "Pressione qualquer tecla para voltar..." "DarkGray"
+    Write-Host "`n"; Show-Center (Get-Text "Wait") "DarkGray"
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -126,7 +202,33 @@ function Get-SizeMB ($Path) {
     return 0
 }
 
-# --- FUNÇÕES NOVAS (V55) ---
+# ================= SISTEMA DE UPDATE APRIMORADO =================
+
+function Start-AutoUpdate {
+    Show-Center "Conectando ao servidor / Connecting to server..." "DarkGray"
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    
+    try {
+        Show-Center "Baixando Motor..." "Cyan"
+        $NewScript = Invoke-RestMethod -Uri $UpdateURL -UseBasicParsing
+        if ($NewScript -match "SYSTEM OPTIMIZER CORE") { Set-Content -Path $global:CurrentFile -Value $NewScript -Force }
+        
+        Show-Center "Baixando Changelog..." "Cyan"
+        $NewChangelog = Invoke-RestMethod -Uri $ChangelogURL -UseBasicParsing
+        if ($NewChangelog -match "Changelog") { Set-Content -Path "$ScriptPath\CHANGELOG.md" -Value $NewChangelog -Force }
+
+        Show-Center "Baixando README..." "Cyan"
+        $NewReadme = Invoke-RestMethod -Uri $ReadmeURL -UseBasicParsing
+        if ($NewReadme -match "System Optimizer") { Set-Content -Path "$ScriptPath\README.md" -Value $NewReadme -Force }
+
+        Show-Center "[OK] Atualizado com sucesso! Reinicie o script." "Green"
+    } catch {
+        Show-Center "Error: $($_.Exception.Message)" "Red"
+    }
+    Wait-User
+}
+
+# ================= FUNCOES ESPECIAIS (GAMER & SYS) =================
 
 function Start-DirectXShaderClear {
     Show-Center "Limpando Cache de Sombras (Shader Cache - AMD/NVIDIA)..." "Cyan"
@@ -164,8 +266,6 @@ function Start-FontCacheReset {
     Show-Center "Fontes resetadas! Textos borrados devem sumir." "Green"; Start-Sleep 2
 }
 
-# --- FUNÇÕES ANTIGAS (PRESERVADAS DA V54) ---
-
 function Start-TimerResolution {
     Clear-Host; Show-Center "--- MODO BAIXA LATENCIA (0.5ms) ---" "Magenta"
     Show-Center "Mantenha esta janela ABERTA enquanto joga." "Yellow"
@@ -196,29 +296,6 @@ function Start-RAMCleaner {
     $Procs = Get-Process
     foreach ($P in $Procs) { try { [void][Win32]::EmptyWorkingSet($P.Handle) } catch {} }
     [System.GC]::Collect() | Out-Null
-}
-
-function Start-AutoUpdate {
-    Show-Center "Configurando seguranca de conexao (TLS 1.2)..." "DarkGray"
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-    Show-Center "Verificando atualizacoes no GitHub..." "Cyan"
-    
-    try {
-        # Usa UseBasicParsing e baixa o arquivo raw
-        $NewScript = Invoke-RestMethod -Uri $UpdateURL -UseBasicParsing
-        
-        # Verifica se o conteúdo baixado parece ser o script correto
-        if ($NewScript -match "SYSTEM OPTIMIZER") {
-            # ATENCAO: Usa $CurrentFile para atualizar o arquivo que esta rodando agora
-            Set-Content -Path $global:CurrentFile -Value $NewScript -Force
-            Show-Center "Atualizado com sucesso! Reinicie o script." "Green"
-        } else {
-            Show-Center "Conteudo invalido. Verifique o link RAW." "Red"
-        }
-    } catch {
-        Show-Center "Erro ao conectar: $($_.Exception.Message)" "Red"
-    }
-    Wait-User
 }
 
 function Start-TakeOwnership {
@@ -337,7 +414,92 @@ function Start-CopilotToggle {
     Show-Center "Copilot desativado. Reinicie o PC para aplicar." "Green"
 }
 
-# --- MÓDULOS PRINCIPAIS ---
+# ================= MODULOS DE OTIMIZACAO =================
+
+function Modulo-Otimizacao {
+    Show-Center "=== FAXINA COMPLETA (SSD MODE) ===" "White"; Write-Host ""
+    $TotalFreedMB = 0
+    
+    Show-Center "Parando Servicos do Windows..." "Yellow"
+    Stop-Service wuauserv -Force -ErrorAction SilentlyContinue; Stop-Service bits -Force -ErrorAction SilentlyContinue
+
+    $Steps = @(
+        @{Name="Lixo do Usuario"; Path="$env:TEMP\*"},
+        @{Name="Lixo do Windows"; Path="$env:WINDIR\Temp\*"},
+        @{Name="Arquivos de Boot"; Path="$env:WINDIR\Prefetch\*"},
+        @{Name="Restos de Atualizacoes"; Path="$env:WINDIR\SoftwareDistribution\Download\*"},
+        @{Name="Logs do Sistema"; Path="$env:WINDIR\Logs\*"},
+        @{Name="Relatorios de Erros"; Path="$env:LOCALAPPDATA\Microsoft\Windows\WER\*"}
+    )
+
+    foreach ($Step in $Steps) {
+        $Size = Get-SizeMB $Step.Path; $TotalFreedMB += $Size
+        Show-Center "Limpando $($Step.Name) ($Size MB)..." "Cyan"
+        try { Get-ChildItem $Step.Path -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue } catch {}
+        Start-Sleep -Milliseconds 50
+    }
+
+    Show-Center "Esvaziando Lixeira..." "Cyan"
+    try { Clear-RecycleBin -Force -ErrorAction SilentlyContinue | Out-Null } catch {}
+
+    Show-Center "Resetando Cache de Icones..." "Cyan"
+    try { Remove-Item "$env:LOCALAPPDATA\IconCache.db" -Force -ErrorAction SilentlyContinue } catch {}
+
+    $BrowserSize = 0
+    $Browsers = @("$env:LOCALAPPDATA\Vivaldi\User Data\Default\Cache", "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Cache", "$env:LOCALAPPDATA\Microsoft\Edge\User Data\Default\Cache")
+    foreach ($P in $Browsers) { 
+        if (Test-Path $P) { 
+            $BrowserSize += Get-SizeMB "$P\*"; Remove-Item "$P\*" -Recurse -Force -ErrorAction SilentlyContinue 
+        } 
+    }
+    $TotalFreedMB += $BrowserSize
+    Show-Center "Limpando Lixo dos Navegadores ($BrowserSize MB)..." "Cyan"
+    
+    Show-Center "Limpando Logs de Eventos..." "Cyan"
+    wevtutil el | ForEach-Object { [void](wevtutil cl "$_" 2>$null) }
+    
+    Show-Center "Otimizando SSD e RAM (Modo Agressivo)..." "DarkGray"
+    fsutil behavior set memoryusage 2 | Out-Null
+    Start-RAMCleaner; ipconfig /flushdns | Out-Null
+    
+    Start-Service wuauserv -ErrorAction SilentlyContinue; Start-Service bits -ErrorAction SilentlyContinue
+    try { Optimize-Volume -DriveLetter C -ReTrim -ErrorAction SilentlyContinue | Out-Null } catch {}
+
+    Write-Host "`n"; Show-Center "--- RESUMO DA LIMPEZA ---" "White"
+    Show-Center "ESPACO TOTAL LIBERADO: $TotalFreedMB MB" "Green"
+    Show-Center "Sistema Limpo, RAM Desafogada e SSD Otimizado." "Green"
+    
+    [System.Media.SystemSounds]::Exclamation.Play(); Wait-User
+}
+
+function Modulo-Lite {
+    Show-Center "=== OTIMIZACAO LITE (HDD/OLD PC) ===" "White"; Write-Host ""
+    Show-Center "Modo Seguro: Pulando manipulacao agressiva de RAM e TRIM..." "Yellow"
+    $TotalFreedMB = 0
+    
+    $Steps = @(
+        @{Name="Lixo do Usuario"; Path="$env:TEMP\*"}, 
+        @{Name="Lixo do Windows"; Path="$env:WINDIR\Temp\*"},
+        @{Name="Logs do Sistema"; Path="$env:WINDIR\Logs\*"}
+    )
+    foreach ($Step in $Steps) { 
+        $Size = Get-SizeMB $Step.Path; $TotalFreedMB += $Size
+        Show-Center "Limpando $($Step.Name)..." "Cyan"
+        try { Get-ChildItem $Step.Path -Recurse -Force | Remove-Item -Force -Recurse } catch {} 
+    }
+    
+    Show-Center "Limpando navegadores..." "Cyan"
+    $Browsers = @("$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Cache", "$env:LOCALAPPDATA\Microsoft\Edge\User Data\Default\Cache")
+    foreach ($P in $Browsers) { if (Test-Path $P) { Remove-Item "$P\*" -Recurse -Force -ErrorAction SilentlyContinue } }
+    
+    Show-Center "Esvaziando Lixeira gentilmente..." "Cyan"
+    try { Clear-RecycleBin -Force -ErrorAction SilentlyContinue | Out-Null } catch {}
+    
+    Write-Host "`n"; Show-Center "ESPACO TOTAL LIBERADO: $TotalFreedMB MB" "Green"
+    Show-Center "Limpeza segura concluida para Discos Rigidos (HDD)!" "Green"; Wait-User
+}
+
+# ================= MENUS SECUNDARIOS =================
 
 function Modulo-Diagnostico {
     Show-Center "=== DIAGNOSTICO DO PC ===" "White"; Write-Host ""
@@ -390,7 +552,6 @@ function Modulo-Diagnostico {
         $Size = [Math]::Round($D.Size / 1GB, 0)
         $Type = if ($D.MediaType -eq "Unspecified") { "SSD" } else { $D.MediaType }
         $Color = if ($D.HealthStatus -eq "Healthy") { "Green" } else { "Red" }
-        # Textos puramente brancos, apenas Status colorido
         Show-Dual-Center "$Type - $Size GB - ($($D.Model))" "[$($D.HealthStatus)]" "White" $Color
     }
     
@@ -402,63 +563,6 @@ function Modulo-Diagnostico {
     } catch { Show-Center "Sem Internet" "Red" }
     
     Wait-User
-}
-
-function Modulo-Otimizacao {
-    Show-Center "=== FAXINA COMPLETA E OTIMIZACAO ===" "White"; Write-Host ""
-    $TotalFreedMB = 0
-    
-    Show-Center "Parando Servicos do Windows..." "Yellow"
-    Stop-Service wuauserv -Force -ErrorAction SilentlyContinue; Stop-Service bits -Force -ErrorAction SilentlyContinue
-
-    $Steps = @(
-        @{Name="Lixo do Usuario"; Path="$env:TEMP\*"},
-        @{Name="Lixo do Windows"; Path="$env:WINDIR\Temp\*"},
-        @{Name="Arquivos de Boot"; Path="$env:WINDIR\Prefetch\*"},
-        @{Name="Restos de Atualizacoes"; Path="$env:WINDIR\SoftwareDistribution\Download\*"},
-        @{Name="Logs do Sistema"; Path="$env:WINDIR\Logs\*"},
-        @{Name="Relatorios de Erros"; Path="$env:LOCALAPPDATA\Microsoft\Windows\WER\*"}
-    )
-
-    foreach ($Step in $Steps) {
-        $Size = Get-SizeMB $Step.Path; $TotalFreedMB += $Size
-        Show-Center "Limpando $($Step.Name) ($Size MB)..." "Cyan"
-        try { Get-ChildItem $Step.Path -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue } catch {}
-        Start-Sleep -Milliseconds 50
-    }
-
-    Show-Center "Esvaziando Lixeira..." "Cyan"
-    try { Clear-RecycleBin -Force -ErrorAction SilentlyContinue | Out-Null } catch {}
-
-    Show-Center "Resetando Cache de Icones..." "Cyan"
-    try { Remove-Item "$env:LOCALAPPDATA\IconCache.db" -Force -ErrorAction SilentlyContinue } catch {}
-
-    $BrowserSize = 0
-    $Browsers = @("$env:LOCALAPPDATA\Vivaldi\User Data\Default\Cache", "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Cache", "$env:LOCALAPPDATA\Microsoft\Edge\User Data\Default\Cache")
-    foreach ($P in $Browsers) { 
-        if (Test-Path $P) { 
-            $BrowserSize += Get-SizeMB "$P\*"; Remove-Item "$P\*" -Recurse -Force -ErrorAction SilentlyContinue 
-        } 
-    }
-    $TotalFreedMB += $BrowserSize
-    Show-Center "Limpando Lixo dos Navegadores ($BrowserSize MB)..." "Cyan"
-    
-    Show-Center "Limpando Logs de Eventos..." "Cyan"
-    wevtutil el | ForEach-Object { [void](wevtutil cl "$_" 2>$null) }
-    
-    Show-Center "Otimizando HD, RAM e DNS..." "DarkGray"
-    netsh int tcp set global rss=enabled | Out-Null
-    fsutil behavior set memoryusage 2 | Out-Null
-    Start-RAMCleaner; ipconfig /flushdns | Out-Null
-    
-    Start-Service wuauserv -ErrorAction SilentlyContinue; Start-Service bits -ErrorAction SilentlyContinue
-    try { Optimize-Volume -DriveLetter C -ReTrim -ErrorAction SilentlyContinue | Out-Null } catch {}
-
-    Write-Host "`n"; Show-Center "--- RESUMO DA LIMPEZA ---" "White"
-    Show-Center "ESPACO TOTAL LIBERADO: $TotalFreedMB MB" "Green"
-    Show-Center "Sistema Limpo, RAM Desafogada e SSD Otimizado." "Green"
-    
-    [System.Media.SystemSounds]::Exclamation.Play(); Wait-User
 }
 
 function Modulo-Gamer {
@@ -484,11 +588,11 @@ function Modulo-Gamer {
         Draw-Separator
         Draw-Menu-Item "10" "DIRECTX SHADER RESET" "GAMER" "Limpa cache da GPU (Fix Stuttering)"
         Draw-Separator
-        Draw-Menu-Item "0" "VOLTAR" "---" "Retornar ao Menu Inicial"
+        Draw-Menu-Item "0" (Get-Text "Back") "---" (Get-Text "D_Back")
         
-        Write-Host "`n"; Show-Center "Escolha uma Opcao:" "Cyan"
+        Write-Host "`n"; Show-Center (Get-Text "Choose") "Cyan"
         $K = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").Character
-        if ($K -eq '1' -and $Host.UI.RawUI.KeyAvailable) { $K += $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").Character } # Captura o 10
+        if ($K -eq '1' -and $Host.UI.RawUI.KeyAvailable) { $K += $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").Character }
         
         switch ($K) {
             '1' { Start-TimerResolution }
@@ -531,9 +635,9 @@ function Modulo-SystemTools {
         Draw-Separator
         Draw-Menu-Item "9" "FERRAMENTAS AVANCADAS" "SISTEMA" "Ir para Pagina 2 (OneDrive, Fonts...)"
         Draw-Separator
-        Draw-Menu-Item "0" "VOLTAR" "---" "Retornar ao Menu Inicial"
+        Draw-Menu-Item "0" (Get-Text "Back") "---" (Get-Text "D_Back")
         
-        Write-Host "`n"; Show-Center "Escolha uma Opcao:" "Cyan"
+        Write-Host "`n"; Show-Center (Get-Text "Choose") "Cyan"
         $K = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").Character
         switch ($K) {
             '1' { try { irm "https://christitus.com/win" | iex } catch { Show-Center "Sem internet." "Red"; Start-Sleep 2 } }
@@ -579,13 +683,13 @@ function Modulo-SystemTools-Pag2 {
         Draw-Separator
         Draw-Menu-Item "7" "FIX BLUETOOTH CACHE" "ADVANCED" "Resolve falha de pareamento (Novo V55)"
         Draw-Separator
-        Draw-Menu-Item "8" "ATUALIZAR SCRIPT" "SISTEMA" "Baixa a versao mais recente do GitHub"
+        Draw-Menu-Item "8" "ATUALIZAR SCRIPT TOTAL" "SISTEMA" "Baixa Motor, Readme e Changelog"
         Draw-Separator
         Draw-Menu-Item "9" "TESTES GARGALO E JITTER" "ADVANCED" "Testar CPU e Internet"
         Draw-Separator
-        Draw-Menu-Item "0" "VOLTAR" "---" "Retornar a Pagina 1"
+        Draw-Menu-Item "0" (Get-Text "Back") "---" (Get-Text "D_Back")
         
-        Write-Host "`n"; Show-Center "Escolha uma Opcao:" "Cyan"
+        Write-Host "`n"; Show-Center (Get-Text "Choose") "Cyan"
         $K = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").Character
         switch ($K) {
             '1' { Start-AppxRestore; Start-Sleep 2 }
@@ -613,30 +717,32 @@ function Modulo-Mas {
     try { irm https://get.activated.win | iex } catch { Show-Center "Sem conexao com a internet." "Red"; Start-Sleep 2 }
 }
 
-# --- MENU PRINCIPAL ---
+# --- MENU PRINCIPAL (i18n IMPLEMENTADO) ---
 do {
     Draw-Header
-    Draw-Menu-Item "1" "OTIMIZAR AGORA" "LIMPEZA" "Esvazia lixeira, limpa sistema e melhora RAM"
+    Draw-Menu-Item "1" (Get-Text "M_Opt") "LIMPEZA" (Get-Text "D_Opt")
     Draw-Separator
-    Draw-Menu-Item "2" "WINDOWS ACTIVATOR" "ATIVADOR" "Ativa o Windows e o pacote Office para sempre"
+    Draw-Menu-Item "2" (Get-Text "M_Lite") "LITE" (Get-Text "D_Lite")
     Draw-Separator
-    Draw-Menu-Item "3" "FERRAMENTAS GAMER" "GAMER" "Aumenta FPS, tira lag do mouse e do sistema"
+    Draw-Menu-Item "3" (Get-Text "M_Gamer") "GAMER" (Get-Text "D_Gamer")
     Draw-Separator
-    Draw-Menu-Item "4" "FERRAMENTAS SISTEMA" "SISTEMA" "Repara erros, arruma internet e apaga inuteis"
+    Draw-Menu-Item "4" (Get-Text "M_Sys") "SISTEMA" (Get-Text "D_Sys")
     Draw-Separator
-    Draw-Menu-Item "5" "DIAGNOSTICO PC" "INFO" "Mostra as pecas, gargalo e saude do sistema"
+    Draw-Menu-Item "5" (Get-Text "M_Act") "ATIVADOR" (Get-Text "D_Act")
     Draw-Separator
-    Draw-Menu-Item "6" "SAIR" "---" "Fechar e Sair do Otimizador"
+    Draw-Menu-Item "6" (Get-Text "M_Diag") "INFO" (Get-Text "D_Diag")
+    Draw-Separator
+    Draw-Menu-Item "0" (Get-Text "M_Exit") "---" (Get-Text "D_Exit")
     
-    Write-Host "`n"; Show-Center "Escolha uma opcao digitando o numero correspondente:" "Cyan"
+    Write-Host "`n"; Show-Center (Get-Text "Choose") "Cyan"
     $Key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").Character
     switch ($Key) {
         '1' { Modulo-Otimizacao }
-        '2' { Modulo-Mas }
+        '2' { Modulo-Lite }
         '3' { Modulo-Gamer }
         '4' { Modulo-SystemTools }
-        '5' { Modulo-Diagnostico }
-        '6' { exit }
+        '5' { Modulo-Mas }
+        '6' { Modulo-Diagnostico }
+        '0' { exit }
     }
 } while ($true)
-
