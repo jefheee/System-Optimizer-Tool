@@ -4,6 +4,8 @@ Um utilitário CLI (Command Line Interface) robusto e automatizado, desenvolvido
 
 Este projeto nasceu da necessidade de unificar dezenas de ferramentas de otimização espalhadas pela internet em um único hub intuitivo, seguro e rápido.
 
+<img width="956" height="619" alt="image" src="https://github.com/user-attachments/assets/dcfa7082-521f-47dc-97b6-cb1fd34a00f9" />
+
 ##  Como este projeto foi construído
 Este script é resultado da união entre **conhecimento de domínio** e **Inteligência Artificial**. A arquitetura, a lógica de quais chaves de registro modificar, a escolha das ferramentas (MAS, WinUtil) e a estrutura de UX foram desenhadas por mim (Jefherson), enquanto a IA (Gemini) foi utilizada como *Pair Programmer* para refinar a sintaxe do PowerShell, injetar código C# e garantir o tratamento de erros (Error Handling) impecável.
 
@@ -16,6 +18,8 @@ Este script é resultado da união entre **conhecimento de domínio** e **Inteli
 * **RAM & Storage Boost:** Otimiza a memória RAM esvaziando o *Working Set* de processos em background e executa o comando TRIM para prolongar a vida útil de SSDs.
 * **Network Tweaks:** Ativa o RSS e o *Auto-Tuning* TCP para melhor vazão de rede.
 
+<img width="957" height="922" alt="image" src="https://github.com/user-attachments/assets/6675c880-a450-4dee-87f6-b1f86f2930c7" />
+
 ###  2. Gaming Toolkit (Foco em Baixa Latência)
 * **Timer Resolution (0.5ms):** Injeta código C# nativo para forçar o relógio do Windows a operar na latência mínima (0.5ms), reduzindo o input lag em jogos competitivos.
 * **Game Booster:** Altera a prioridade da CPU do seu jogo favorito para "Alta" via Registro, de forma permanente.
@@ -24,6 +28,8 @@ Este script é resultado da união entre **conhecimento de domínio** e **Inteli
 * **Smart Shutdown:** Monitora o uso de Rede e CPU. Desliga o PC automaticamente quando um download longo ou descompactação pesada termina.
 * **Jitter Test:** Ferramenta de disparo rápido de ping para calcular a oscilação da internet.
 
+<img width="958" height="727" alt="image" src="https://github.com/user-attachments/assets/3bbc3948-ae03-4ac4-bcdf-09f1a062f96c" />
+
 ###  3. Ferramentas de Sistema e Reparo
 * **WinUtil Integrado:** Atalho para a ferramenta de debloat avançada do *Chris Titus Tech*.
 * **Windows Update Fix:** Reinicia serviços e limpa o diretório `SoftwareDistribution` para destravar atualizações.
@@ -31,9 +37,16 @@ Este script é resultado da união entre **conhecimento de domínio** e **Inteli
 * **DNS Jumper:** Testa o ping do Google e Cloudflare e aplica o melhor automaticamente.
 * **Ativador MAS:** Acesso direto ao *Microsoft Activation Scripts* para licenciamento do sistema.
 
+<img width="956" height="785" alt="image" src="https://github.com/user-attachments/assets/27e8d1c3-1b6a-45b7-b2fe-8924ef534974" />
+
+<img width="1592" height="943" alt="image" src="https://github.com/user-attachments/assets/89b184b2-2837-4fd6-83bc-88313c264a66" />
+
+
 ###  4. Diagnóstico de Hardware Dinâmico
 * Leitura WMI em tempo real. Identifica o modelo exato do Processador, Placa de Vídeo, Placa-Mãe e a saúde (S.M.A.R.T) dos discos (NVMe/SSD/HDD).
 * **RAM Scanner:** Detecta cada pente de memória individualmente, somando a capacidade e avisando caso a velocidade (MHz) esteja muito baixa (indicando que o XMP está desligado na BIOS).
+
+  <img width="959" height="931" alt="image" src="https://github.com/user-attachments/assets/73610038-6f21-41f8-8d31-b73b12768f14" />
 
 ---
 
