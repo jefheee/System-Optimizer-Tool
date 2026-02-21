@@ -54,7 +54,7 @@ Este script é resultado da união entre **conhecimento de domínio** e **Inteli
 
 1. Baixe os arquivos do repositório ou clone-o: `git clone https://github.com/jefheee/System-Optimizer-Tool.git`
 2. Extraia os arquivos para uma pasta.
-3. Dê um duplo clique no arquivo **`LIMPAR_PC.bat`**.
+3. Dê um duplo clique no arquivo **`Launcher.bat`**.
 4. O script solicitará privilégios de Administrador automaticamente. Confirme.
 5. Navegue pelo menu utilizando os números do teclado.
 
