@@ -1,13 +1,21 @@
 # =================================================================
-# MOTOR DE OTIMIZACAO V54 (TITAN ULTIMATE - AUTO-FIX)
+# SYSTEM OPTIMIZER CORE V55 (TITAN LEGACY - FULL FEATURES)
 # =================================================================
 $ErrorActionPreference = 'SilentlyContinue'
 $FixedW = 100 
-$Version = "V54"
-# LINK RAW CORRIGIDO (Obrigatorio ser raw.githubusercontent)
-$UpdateURL = "https://raw.githubusercontent.com/jefheee/System-Optimizer-Tool/main/MotorLimpeza.ps1"
-# CAPTURA O CAMINHO SEGURO DO SCRIPT
-$ScriptPath = $PSCommandPath
+$Version = "V55"
+
+# --- FIX DE UPDATE E PATH (Blindagem contra Path Nulo) ---
+if ($PSScriptRoot) {
+    $ScriptPath = $PSScriptRoot
+} else {
+    $ScriptPath = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
+}
+# Define o arquivo atual para auto-update funcionar independente do nome
+$CurrentFile = $MyInvocation.MyCommand.Definition
+
+# LINK RAW (Certifique-se que o nome no GitHub sera OptimizerCore.ps1)
+$UpdateURL = "https://raw.githubusercontent.com/jefheee/System-Optimizer-Tool/main/OptimizerCore.ps1"
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -64,20 +72,13 @@ function Draw-Separator {
 
 function Draw-Header {
     Clear-Host; Write-Host "`n"
-    Show-Center "  _______  __   __  _______  _______  _______  __   __  " "Cyan"
-    Show-Center " |       ||  | |  ||       ||       ||       ||  |_|  | " "Cyan"
-    Show-Center " |  _____||  |_|  ||  _____||_     _||    ___||       | " "Cyan"
-    Show-Center " | |_____ |       || |_____   |   |  |   |___ |       | " "Cyan"
-    Show-Center " |_____  ||_     _||_____  |  |   |  |    ___||       | " "Cyan"
-    Show-Center "  _____| |  |   |   _____| |  |   |  |   |___ | ||_|| | " "Cyan"
-    Show-Center " |_______|  |___|  |_______|  |___|  |_______||_|   |_| " "Cyan"
-    Show-Center "  _______  _______  _______  ___  __   __  ___  _______  _______  ______   " "Cyan"
-    Show-Center " |       ||       ||       ||   ||  |_|  ||   ||       ||       ||    _ |  " "Cyan"
-    Show-Center " |   _   ||    _  ||_     _||   ||       ||   ||____   ||    ___||   | ||  " "Cyan"
-    Show-Center " |  | |  ||   |_| |  |   |  |   ||       ||   ||____|  ||   |___ |   |_||_ " "Cyan"
-    Show-Center " |  |_|  ||    ___|  |   |  |   ||       ||   || ______||    ___||    __  |" "Cyan"
-    Show-Center " |       ||   |      |   |  |   || ||_|| ||   || |_____ |   |___ |   |  | |" "Cyan"
-    Show-Center " |_______||___|      |___|  |___||_|   |_||___||_______||_______||___|  |_|" "Cyan"
+    Show-Center "   _______  _______  _______  _______  _______  _____  _______ " "Cyan"
+    Show-Center "  |     ||  _    ||       ||       ||       ||     ||       |" "Cyan"
+    Show-Center "  |  _  || |_|   ||_     _||_     _||    _  ||  _  ||_     _|" "Cyan"
+    Show-Center "  | | | ||       |  |   |    |   |  |   |_| || | | |  |   |  " "Cyan"
+    Show-Center "  | |_| ||  _   |   |   |    |   |  |    ___|| |_| |  |   |  " "Cyan"
+    Show-Center "  |     || |_|   |  |   |   _|   |_ |   |    |     |  |   |  " "Cyan"
+    Show-Center "  |_____||_______|  |___|  |_______||___|    |_____|  |___|  " "Cyan"
     Write-Host ""
     Show-Center " COMMAND CENTER $Version " "DarkGray"
     Write-Host "`n"
@@ -98,6 +99,7 @@ function Draw-Menu-Item {
     elseif ($Action -eq "SISTEMA") { $AColor = "Yellow" }
     elseif ($Action -eq "INFO") { $AColor = "Cyan" }
     elseif ($Action -eq "ATIVADOR") { $AColor = "Red" }
+    elseif ($Action -eq "ADVANCED") { $AColor = "Red" }
     
     Write-Host "$A " -NoNewline -ForegroundColor $AColor
     Write-Host "- $Desc" -ForegroundColor Gray
@@ -117,7 +119,45 @@ function Get-SizeMB ($Path) {
     return 0
 }
 
-# --- FUNÇÕES ESPECIAIS ---
+# --- FUNÇÕES NOVAS (V55) ---
+
+function Start-DirectXShaderClear {
+    Show-Center "Limpando Cache de Sombras (Shader Cache - AMD/NVIDIA)..." "Cyan"
+    $Paths = @("$env:LOCALAPPDATA\AMD\DxCache", "$env:LOCALAPPDATA\NVIDIA\GLCache", "$env:LOCALAPPDATA\D3DSCache")
+    foreach ($P in $Paths) { if (Test-Path $P) { Remove-Item "$P\*" -Recurse -Force -ErrorAction SilentlyContinue } }
+    Show-Center "Executando limpeza nativa do DirectX..." "Yellow"
+    Cleanmgr /sagerun:64 | Out-Null
+    Show-Center "Shaders resetados! Isso corrige gagueira (stutter) em jogos." "Green"; Start-Sleep 2
+}
+
+function Start-OneDriveRemoval {
+    Show-Center "ALERTA: Isso removera o OneDrive COMPLETAMENTE." "Red"
+    Show-Center "Pressione ENTER para confirmar ou ESC para cancelar." "White"
+    $K = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown"); if ($K.VirtualKeyCode -eq 27) { return }
+    taskkill /f /im OneDrive.exe | Out-Null
+    if (Test-Path "$env:systemroot\System32\OneDriveSetup.exe") { Start-Process "$env:systemroot\System32\OneDriveSetup.exe" -ArgumentList "/uninstall" -Wait }
+    if (Test-Path "$env:systemroot\SysWOW64\OneDriveSetup.exe") { Start-Process "$env:systemroot\SysWOW64\OneDriveSetup.exe" -ArgumentList "/uninstall" -Wait }
+    Remove-Item "$env:USERPROFILE\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item "$env:LOCALAPPDATA\Microsoft\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
+    Show-Center "OneDrive eliminado do sistema." "Green"; Start-Sleep 3
+}
+
+function Start-BluetoothCacheFix {
+    Stop-Service bthserv -Force -ErrorAction SilentlyContinue
+    Remove-Item "HKLM:\SYSTEM\CurrentControlSet\Services\BTHPORT\Parameters\Keys\*" -Recurse -Force -ErrorAction SilentlyContinue
+    Start-Service bthserv -ErrorAction SilentlyContinue
+    Show-Center "Cache Bluetooth limpo. Reconecte seus dispositivos." "Green"; Start-Sleep 2
+}
+
+function Start-FontCacheReset {
+    Stop-Service FontCache -Force -ErrorAction SilentlyContinue
+    Remove-Item "$env:LOCALAPPDATA\Microsoft\Windows\Fonts\*.dat" -Force -ErrorAction SilentlyContinue
+    Remove-Item "$env:SystemRoot\ServiceProfiles\LocalService\AppData\Local\FontCache\*" -Recurse -Force -ErrorAction SilentlyContinue
+    Start-Service FontCache -ErrorAction SilentlyContinue
+    Show-Center "Fontes resetadas! Textos borrados devem sumir." "Green"; Start-Sleep 2
+}
+
+# --- FUNÇÕES ANTIGAS (PRESERVADAS DA V54) ---
 
 function Start-TimerResolution {
     Clear-Host; Show-Center "--- MODO BAIXA LATENCIA (0.5ms) ---" "Magenta"
@@ -157,16 +197,16 @@ function Start-AutoUpdate {
     Show-Center "Verificando atualizacoes no GitHub..." "Cyan"
     
     try {
-        # Usa UseBasicParsing para compatibilidade e baixa o texto puro
+        # Usa UseBasicParsing e baixa o arquivo raw
         $NewScript = Invoke-RestMethod -Uri $UpdateURL -UseBasicParsing
         
-        # Verifica se o conteúdo baixado parece ser o script
+        # Verifica se o conteúdo baixado parece ser o script correto
         if ($NewScript -match "SYSTEM OPTIMIZER") {
-            # Usa a variável global $ScriptPath que capturamos no inicio
-            Set-Content -Path $global:ScriptPath -Value $NewScript -Force
+            # ATENCAO: Usa $CurrentFile para atualizar o arquivo que esta rodando agora
+            Set-Content -Path $global:CurrentFile -Value $NewScript -Force
             Show-Center "Atualizado com sucesso! Reinicie o script." "Green"
         } else {
-            Show-Center "Conteudo invalido. Verifique se o link e RAW." "Red"
+            Show-Center "Conteudo invalido. Verifique o link RAW." "Red"
         }
     } catch {
         Show-Center "Erro ao conectar: $($_.Exception.Message)" "Red"
@@ -176,7 +216,6 @@ function Start-AutoUpdate {
 
 function Start-TakeOwnership {
     Show-Center "Adicionando 'Tomar Posse' ao menu de contexto..." "Cyan"
-    # Adiciona chaves de registro para Arquivos e Pastas
     $RegFile = "HKCR\*\shell\runas"; $RegDir = "HKCR\Directory\shell\runas"
     New-Item -Path $RegFile -Force | Out-Null
     Set-ItemProperty -Path $RegFile -Name "(default)" -Value "Tomar Posse"
@@ -436,10 +475,14 @@ function Modulo-Gamer {
         Draw-Separator
         Draw-Menu-Item "9" "DEFENDER EXCLUSION" "GAMER" "Impede o antivirus de travar seu jogo"
         Draw-Separator
+        Draw-Menu-Item "10" "DIRECTX SHADER RESET" "GAMER" "Limpa cache da GPU (Fix Stuttering)"
+        Draw-Separator
         Draw-Menu-Item "0" "VOLTAR" "---" "Retornar ao Menu Inicial"
         
         Write-Host "`n"; Show-Center "Escolha uma Opcao:" "Cyan"
         $K = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").Character
+        if ($K -eq '1' -and $Host.UI.RawUI.KeyAvailable) { $K += $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").Character } # Captura o 10
+        
         switch ($K) {
             '1' { Start-TimerResolution }
             '2' { Show-Center "Nome do jogo (ex: cs2.exe):" "White"; $G = Read-Host; if ($G) { Set-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$G\PerfOptions" -Name "CpuPriorityClass" -Value 3 -Force; Show-Center "Jogo abrira em Alta Prioridade!" "Green"; Start-Sleep 2 } }
@@ -455,6 +498,7 @@ function Modulo-Gamer {
             '7' { Start-NetworkPacketReducer; Start-Sleep 2 }
             '8' { Start-RAMBackground }
             '9' { Start-DefenderExclusion }
+            '10' { Start-DirectXShaderClear }
             '0' { return }
         }
     } while ($true)
@@ -478,7 +522,7 @@ function Modulo-SystemTools {
         Draw-Separator
         Draw-Menu-Item "7" "DESATIVAR TELEMETRIA" "SISTEMA" "Impede o Windows de te rastrear"
         Draw-Separator
-        Draw-Menu-Item "9" "MAIS FERRAMENTAS..." "SISTEMA" "Ir para a Pagina 2 de funcoes"
+        Draw-Menu-Item "9" "FERRAMENTAS AVANCADAS" "SISTEMA" "Ir para Pagina 2 (OneDrive, Fonts...)"
         Draw-Separator
         Draw-Menu-Item "0" "VOLTAR" "---" "Retornar ao Menu Inicial"
         
@@ -512,7 +556,7 @@ function Modulo-SystemTools {
 
 function Modulo-SystemTools-Pag2 {
     do {
-        Clear-Host; Draw-Header; Show-Center "=== FERRAMENTAS DO SISTEMA (PAGINA 2) ===" "Yellow"; Write-Host ""
+        Clear-Host; Draw-Header; Show-Center "=== FERRAMENTAS AVANCADAS (PAGINA 2) ===" "Red"; Write-Host ""
         
         Draw-Menu-Item "1" "RESTAURAR APPS PADRAO" "SISTEMA" "Reinstala Calculadora, Loja e Nativos"
         Draw-Separator
@@ -522,7 +566,15 @@ function Modulo-SystemTools-Pag2 {
         Draw-Separator
         Draw-Menu-Item "4" "ADD TOMAR POSSE (MENU)" "SISTEMA" "Adiciona opcao de dono no botao direito"
         Draw-Separator
-        Draw-Menu-Item "5" "ATUALIZAR SCRIPT" "SISTEMA" "Baixa a versao mais recente do GitHub"
+        Draw-Menu-Item "5" "REMOVER ONEDRIVE (FULL)" "ADVANCED" "Apaga app e residuos (Novo V55)"
+        Draw-Separator
+        Draw-Menu-Item "6" "RESETAR FONTE CACHE" "ADVANCED" "Corrige letras borradas (Novo V55)"
+        Draw-Separator
+        Draw-Menu-Item "7" "FIX BLUETOOTH CACHE" "ADVANCED" "Resolve falha de pareamento (Novo V55)"
+        Draw-Separator
+        Draw-Menu-Item "8" "ATUALIZAR SCRIPT" "SISTEMA" "Baixa a versao mais recente do GitHub"
+        Draw-Separator
+        Draw-Menu-Item "9" "TESTES GARGALO E JITTER" "ADVANCED" "Testar CPU e Internet"
         Draw-Separator
         Draw-Menu-Item "0" "VOLTAR" "---" "Retornar a Pagina 1"
         
@@ -533,7 +585,11 @@ function Modulo-SystemTools-Pag2 {
             '2' { Start-NetAdapterReset }
             '3' { Start-CopilotToggle; Start-Sleep 2 }
             '4' { Start-TakeOwnership }
-            '5' { Start-AutoUpdate }
+            '5' { Start-OneDriveRemoval }
+            '6' { Start-FontCacheReset }
+            '7' { Start-BluetoothCacheFix }
+            '8' { Start-AutoUpdate }
+            '9' { Start-BottleneckTest; Start-JitterTest }
             '0' { return }
         }
     } while ($true)
