@@ -1,27 +1,30 @@
 # Changelog
 
-Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
+Todas as mudanças e evoluções do System Optimizer serão documentadas aqui.
 
-## [v55] - 2026-02-21
+## [v55.0] - A Era Titan Legacy
 ### Adicionado
-- **Menu Advanced**: Nova página de ferramentas contendo funções agressivas e experimentais.
-- **DirectX Shader Reset**: Limpeza profunda de caches da AMD/NVIDIA para corrigir gagueiras (stuttering) em jogos competitivos.
-- **OneDrive Destroyer**: Remoção completa do OneDrive, incluindo chaves de registro e pastas residuais ocultas.
+- **Menu Advanced**: Nova página de ferramentas contendo funções profundas e experimentais.
+- **DirectX Shader Reset**: Limpeza de caches da AMD/NVIDIA para corrigir gagueiras (stuttering) em jogos.
+- **OneDrive Destroyer**: Remoção agressiva do OneDrive, eliminando chaves de registro e pastas residuais ocultas.
 - **Fixes de Sistema**: Ferramentas para resetar o cache de fontes (letras borradas) e o cache do Bluetooth (falha de pareamento).
+- **Auto-Sync Changelog**: O script agora baixa automaticamente este arquivo `CHANGELOG.md` para a sua máquina ao se atualizar, mantendo você informado offline.
+
 ### Modificado
-- Reestruturação de nomenclatura profissional: `Launcher.bat` e `OptimizerCore.ps1`.
-- Blindagem da variável de caminho (`$PSScriptRoot`) para evitar falhas quando executado via atalhos administrativos.
+- Reestruturação de nomenclatura profissional: `LIMPAR_PC.bat` virou `SystemOptimizer.bat` e `MotorLimpeza.ps1` virou `OptimizerCore.ps1`.
+- Blindagem da variável de caminho (`$PSScriptRoot`) para evitar falhas críticas quando o script é executado via atalhos administrativos.
 
-## [v54] - A Era Titan Ultimate
+## [v54.0] - Titan Ultimate
 ### Adicionado
-- Função `Take Ownership` para adicionar permissões totais a pastas teimosas no menu de contexto do Windows.
-- **RAM Auto-Clean**: Processo imperceptível em segundo plano (`Job`) que esvazia o Working Set a cada 10 minutos.
-- Inclusão rápida de pastas na lista de exclusão do Windows Defender para poupar uso de disco durante a gameplay.
+- Função `Take Ownership` no menu de contexto (Botão Direito).
+- **RAM Auto-Clean**: Processo imperceptível em segundo plano (Job) que esvazia o Working Set a cada 10 minutos.
+- Inclusão rápida de pastas na exclusão do Windows Defender.
+
 ### Corrigido
-- Bug crítico no Auto-Updater onde a variável `$MyInvocation` retornava nula, impedindo o download de novas versões.
-- Correção no link de update para apontar diretamente para a versão RAW do repositório.
+- Bug crítico no Auto-Updater onde a variável `$MyInvocation` retornava nula em menus dinâmicos.
 
-## [v52] - v53
-### Adicionado
-- Implementação do sistema de **Auto-Update OTA (Over-The-Air)** baixando as atualizações diretamente do repositório GitHub via TLS 1.2.
-- Alerta visual no diagnóstico caso a memória RAM esteja operando em frequências baixas (indicando XMP desativado na BIOS).
+## [v53.0 e Anteriores] - A Fundação e Ferramentaria
+- Transição completa de interface estática para CLI responsiva.
+- Injeção direta de código C# (Add-Type) para invocar APIs do Windows (ntdll.dll e psapi.dll).
+- Implementação da leitura dinâmica de RAM via WMI com alertas de velocidade (XMP).
+- Implementação do sistema de Auto-Update OTA (Over-The-Air) via GitHub (TLS 1.2).
