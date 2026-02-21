@@ -1,10 +1,9 @@
 @echo off
-title SYSTEM OPTIMIZER [ULTIMATE V53]
+title SYSTEM OPTIMIZER [ULTIMATE V54]
 mode con: cols=120 lines=55
 color 0B
 
 :: --- BYPASS DE BLOQUEIO (AUTO-UNBLOCK) ---
-:: Remove a restricao "Mark of the Web" de todos os arquivos da pasta atual
 powershell -Command "Get-ChildItem -LiteralPath '%~dp0' -Recurse | Unblock-File" >nul 2>&1
 
 :: --- AUTO-ADMINISTRADOR ---
