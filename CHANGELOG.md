@@ -2,6 +2,15 @@
 
 Todas as mudanças e evoluções do System Optimizer serão documentadas aqui.
 
+## [v56.0] - A Era Global & Lite Mode
+### Adicionado
+- **Suporte Multi-idioma (i18n)**: Implementação de arquitetura baseada em Dicionário de Variáveis (Hash Table). O sistema agora suporta nativamente PT-BR, EN, ES e FR no Menu Principal, salvando a preferência do usuário automaticamente no arquivo `lang.ini`.
+- **Modo Lite (Otimização para HDDs)**: Nova rotina de limpeza desenvolvida para computadores antigos e Discos Rígidos mecânicos (HDD). Exclui a execução de comandos agressivos (como TRIM de SSD e limpeza forçada do Working Set da RAM) que causavam lentidão temporária em discos mais antigos.
+- **Auto-Sync Completo**: A ferramenta interna de atualização agora baixa e sincroniza de forma independente o Motor PowerShell, o `CHANGELOG.md` e o `README.md` locais.
+
+### Modificado
+- Reformulação visual do Menu Principal para abrigar as variáveis de tradução sem poluir a lógica de execução.
+
 ## [v55.0] - A Era Titan Legacy
 ### Adicionado
 - **Menu Advanced**: Nova página de ferramentas contendo funções profundas e experimentais.
