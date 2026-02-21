@@ -1,11 +1,11 @@
 # =================================================================
-# MOTOR DE OTIMIZACAO V51 (PROJECT PORTFOLIO EDITION)
+# MOTOR DE OTIMIZACAO V52 (TITAN ULTIMATE)
 # =================================================================
 $ErrorActionPreference = 'SilentlyContinue'
 $FixedW = 100 
-$Version = "V51"
+$Version = "V52"
 # COLOQUE O LINK "RAW" DO SEU GITHUB AQUI DEPOIS:
-$UpdateURL = "https://raw.githubusercontent.com/SEU_USUARIO/SEU_REPO/main/MotorLimpeza.ps1"
+$UpdateURL = "https://raw.githubusercontent.com/jefheee/System-Optimizer-Tool/main/MotorLimpeza.ps1"
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -41,13 +41,19 @@ function Show-Center {
 }
 
 function Show-Dual-Center {
-    param([string]$LeftText, [string]$RightText, [string]$ColorL="White", [string]$ColorR="Green")
+    param([string]$LeftText, [string]$RightText, [string]$ColorL="White", [string]$ColorR="White")
     $TotalLen = $LeftText.Length + 5 + $RightText.Length
     $PadLeft = [math]::Floor(($FixedW - $TotalLen) / 2)
     if ($PadLeft -lt 0) { $PadLeft = 0 }
     Write-Host (" " * $PadLeft) -NoNewline
     Write-Host "$LeftText     " -NoNewline -ForegroundColor $ColorL
     Write-Host "$RightText" -ForegroundColor $ColorR
+}
+
+function Show-Pyramid {
+    param([array]$List, [string]$Color = "White")
+    $Sorted = $List | Sort-Object Length -Descending
+    foreach ($Item in $Sorted) { Show-Center $Item $Color }
 }
 
 function Draw-Separator {
@@ -129,7 +135,6 @@ function Start-FilterKeys {
 }
 
 function Start-NetworkPacketReducer {
-    # Aplica TcpAckFrequency em todas as interfaces
     $Interfaces = Get-Item "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\*"
     foreach ($Interface in $Interfaces) {
         New-ItemProperty -Path $Interface.PSPath -Name "TcpAckFrequency" -Value 1 -PropertyType DWord -Force -ErrorAction SilentlyContinue | Out-Null
@@ -160,6 +165,67 @@ function Start-AutoUpdate {
     Wait-User
 }
 
+function Start-DriverRepair {
+    Show-Center "Escaneando drivers com problemas..." "Cyan"
+    # Força o Windows a re-detectar hardware
+    pnputil /scan-devices
+    # Lista dispositivos com erro
+    $BadDrivers = Get-PnpDevice | Where-Object { $_.Status -eq "Error" -or $_.Status -eq "Degraded" }
+    
+    if ($BadDrivers) {
+        Write-Host ""
+        Show-Center "Encontrados dispositivos com erro:" "Red"
+        foreach ($D in $BadDrivers) { Show-Center "$($D.FriendlyName) ($($D.InstanceId))" "Yellow" }
+        Write-Host ""
+        Show-Center "Tentativa de reparo (Reset) executada." "Cyan"
+        Show-Center "Se persistir, baixe o driver no site do fabricante." "Gray"
+    } else {
+        Show-Center "Nenhum erro de driver detectado apos o scan." "Green"
+    }
+    Start-Sleep 3
+}
+
+function Start-VisualCacheFix {
+    Show-Center "Limpando Caches Visuais (Icones/Fontes)..." "Cyan"
+    try {
+        Remove-Item "$env:LOCALAPPDATA\IconCache.db" -Force -ErrorAction SilentlyContinue
+        Remove-Item "$env:LOCALAPPDATA\Microsoft\Windows\Explorer\iconcache*" -Force -ErrorAction SilentlyContinue
+        Remove-Item "$env:LOCALAPPDATA\Microsoft\Windows\Explorer\thumbcache*" -Force -ErrorAction SilentlyContinue
+        Show-Center "Concluido. O Explorer pode piscar." "Green"
+    } catch { Show-Center "Erro parcial." "Red" }
+    Start-Sleep 2
+}
+
+function Start-UACControl {
+    Show-Center "[1] Ativar UAC (Padrao)  [2] Desativar UAC (Silencioso)" "White"
+    $Key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").Character
+    $Reg = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
+    if ($Key -eq '2') {
+        Set-ItemProperty -Path $Reg -Name "ConsentPromptBehaviorAdmin" -Value 0 -Force
+        Set-ItemProperty -Path $Reg -Name "EnableLUA" -Value 0 -Force
+        Show-Center "UAC Desativado (Requer Reinicio)." "Yellow"
+    } else {
+        Set-ItemProperty -Path $Reg -Name "ConsentPromptBehaviorAdmin" -Value 5 -Force
+        Set-ItemProperty -Path $Reg -Name "EnableLUA" -Value 1 -Force
+        Show-Center "UAC Restaurado." "Green"
+    }
+    Start-Sleep 1
+}
+
+function Start-ShutdownScheduler {
+    Show-Center "Digite os minutos para desligar (ex: 60) ou 0 para cancelar:" "White"
+    $Min = Read-Host
+    if ($Min -gt 0) {
+        $Sec = [int]$Min * 60
+        shutdown -s -t $Sec
+        Show-Center "Agendado para desligar em $Min minutos." "Green"
+    } else {
+        shutdown -a
+        Show-Center "Agendamento cancelado." "Yellow"
+    }
+    Start-Sleep 2
+}
+
 # --- MÓDULOS PRINCIPAIS ---
 
 function Modulo-Diagnostico {
@@ -176,7 +242,7 @@ function Modulo-Diagnostico {
     
     Write-Host ""
     
-    # HARDWARE
+    # HARDWARE EM PIRÂMIDE (Ordenado por tamanho do texto)
     try {
         $CPU = (Get-CimInstance Win32_Processor).Name
         $GPU = (Get-CimInstance Win32_VideoController | Select-Object -First 1).Name
@@ -195,10 +261,15 @@ function Modulo-Diagnostico {
         $RamSummary = "$RamTotalGB GB ($($RamDetails -join ' + '))"
 
         Show-Center "HARDWARE PRINCIPAL" "Cyan"
-        Show-Dual-Center "GPU:" "$GPU" "White" "White"
-        Show-Dual-Center "RAM:" "$RamSummary" "White" "White"
-        Show-Dual-Center "CPU:" "$CPU" "White" "White"
-        Show-Dual-Center "MOBO:" "$($Board.Manufacturer) $($Board.Product)" "White" "Gray"
+        
+        # Cria array e ordena por tamanho (PIRÂMIDE REAL)
+        $HwItems = @(
+            "[GPU] $GPU",
+            "[RAM] $RamSummary",
+            "[CPU] $CPU",
+            "[MOBO] $($Board.Manufacturer) $($Board.Product)"
+        )
+        Show-Pyramid $HwItems "White"
         
         if ($LowSpeedWarning) {
             Write-Host ""
@@ -206,23 +277,12 @@ function Modulo-Diagnostico {
         }
     } catch {}
 
-    # DRIVER SCAN
-    Write-Host ""
-    $BadDrivers = Get-PnpDevice | Where-Object { $_.Status -eq "Error" -or $_.Status -eq "Degraded" }
-    if ($BadDrivers) {
-        Show-Center "ALERTA: Drivers com erro encontrados!" "Red"
-        foreach ($D in $BadDrivers) { Show-Center "$($D.FriendlyName)" "Red" }
-    } else {
-        Show-Center "Todos os drivers estao funcionando corretamente." "Green"
-    }
-
     Write-Host "`n"; Show-Center "ARMAZENAMENTO" "Cyan"; Write-Host ""
     $Disks = Get-PhysicalDisk | Sort-Object MediaType, Size -Descending
     foreach ($D in $Disks) {
         $Size = [Math]::Round($D.Size / 1GB, 0)
         $Type = if ($D.MediaType -eq "Unspecified") { "SSD" } else { $D.MediaType }
         $Color = if ($D.HealthStatus -eq "Healthy") { "Green" } else { "Red" }
-        # Alinhamento Perfeito: Texto Branco, Status Colorido
         Show-Dual-Center "$Type - $Size GB - ($($D.Model))" "[$($D.HealthStatus)]" "White" $Color
     }
     
@@ -230,7 +290,8 @@ function Modulo-Diagnostico {
     try {
         $P1 = (Test-Connection 8.8.8.8 -Count 1).ResponseTime
         $P2 = (Test-Connection 1.1.1.1 -Count 1).ResponseTime
-        Show-Dual-Center "Google: ${P1}ms" "Cloudflare: ${P2}ms" "White" "Green"
+        # Google e Cloudflare em Branco para neutralidade
+        Show-Dual-Center "Google: ${P1}ms" "Cloudflare: ${P2}ms" "White" "White"
     } catch { Show-Center "Sem Internet" "Red" }
     
     Wait-User
@@ -350,19 +411,19 @@ function Modulo-SystemTools {
         
         Draw-Menu-Item "1" "WINUTIL (CHRIS TITUS)" "SISTEMA" "Ferramenta Externa Super Completa"
         Draw-Separator
-        Draw-Menu-Item "2" "ARRUMAR WINDOWS UPDATE" "SISTEMA" "Destrava atualizacoes presas"
+        Draw-Menu-Item "2" "REPARAR DRIVERS" "SISTEMA" "Tenta corrigir drivers com erro"
         Draw-Separator
         Draw-Menu-Item "3" "ESCOLHER MELHOR DNS" "SISTEMA" "Muda a rede para a mais rapida"
         Draw-Separator
-        Draw-Menu-Item "4" "DESTRAVAR IMPRESSORA" "SISTEMA" "Reseta caso nao queira imprimir"
+        Draw-Menu-Item "4" "CORRIGIR FONTE/ICONE" "SISTEMA" "Limpa cache visual do Windows"
         Draw-Separator
         Draw-Menu-Item "5" "APAGAR APPS INUTEIS" "SISTEMA" "Remove Cortana, Xbox GameBar, etc"
         Draw-Separator
-        Draw-Menu-Item "6" "REPARAR ARQUIVOS WINDOWS" "SISTEMA" "Verifica e corrige tela azul e erros"
+        Draw-Menu-Item "6" "CONTROLE DE UAC" "SISTEMA" "Ativar ou Desativar avisos de Admin"
         Draw-Separator
         Draw-Menu-Item "7" "DESATIVAR TELEMETRIA" "SISTEMA" "Impede o Windows de te rastrear"
         Draw-Separator
-        Draw-Menu-Item "8" "GOD MODE (ATALHO)" "SISTEMA" "Cria icone de Admin na Area de Trabalho"
+        Draw-Menu-Item "8" "AGENDAR DESLIGAMENTO" "SISTEMA" "Cronometro para desligar o PC"
         Draw-Separator
         Draw-Menu-Item "9" "ATUALIZAR SCRIPT" "SISTEMA" "Baixa a versao mais recente do GitHub"
         Draw-Separator
@@ -372,7 +433,7 @@ function Modulo-SystemTools {
         $K = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").Character
         switch ($K) {
             '1' { try { irm "https://christitus.com/win" | iex } catch { Show-Center "Sem internet." "Red"; Start-Sleep 2 } }
-            '2' { Stop-Service wuauserv; Stop-Service bits; Remove-Item "$env:windir\SoftwareDistribution" -Recurse -Force -ErrorAction SilentlyContinue; Start-Service wuauserv; Start-Service bits; Show-Center "Update Resetado." "Green"; Start-Sleep 2 }
+            '2' { Start-DriverRepair }
             '3' {
                 Show-Center "Testando Velocidade..." "Cyan"
                 $G = (Test-Connection 8.8.8.8 -Count 1).ResponseTime; $C = (Test-Connection 1.1.1.1 -Count 1).ResponseTime
@@ -380,11 +441,11 @@ function Modulo-SystemTools {
                 else { Set-DnsClientServerAddress -InterfaceIndex (Get-NetAdapter).InterfaceIndex -ServerAddresses ("8.8.8.8","8.8.4.4"); Show-Center "Google Ativado." "Green" }
                 Start-Sleep 2
             }
-            '4' { Stop-Service Spooler; Start-Service Spooler; Show-Center "Impressora Reiniciada!" "Green"; Start-Sleep 2 }
+            '4' { Start-VisualCacheFix }
             '5' { Get-AppxPackage "*Cortana*" | Remove-AppxPackage; Get-AppxPackage "*XboxGamingOverlay*" | Remove-AppxPackage; Show-Center "Apps removidos." "Green"; Start-Sleep 2 }
-            '6' { Show-Center "Isso pode demorar. Aguarde..." "Cyan"; sfc /scannow; dism /online /cleanup-image /restorehealth; Wait-User }
+            '6' { Start-UACControl }
             '7' { Stop-Service DiagTrack -ErrorAction SilentlyContinue; Set-Service DiagTrack -StartupType Disabled; Show-Center "Rastreamento Desativado." "Green"; Start-Sleep 2 }
-            '8' { New-Item -Path "$env:USERPROFILE\Desktop\GodMode.{ED7BA470-8E54-465E-825C-99712043E01C}" -ItemType Directory -Force | Out-Null; Show-Center "Criado no Desktop." "Green"; Start-Sleep 2 }
+            '8' { Start-ShutdownScheduler }
             '9' { Start-AutoUpdate }
             '0' { return }
         }
