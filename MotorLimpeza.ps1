@@ -1,10 +1,9 @@
 # =================================================================
-# MOTOR DE OTIMIZACAO V52 (TITAN ULTIMATE)
+# MOTOR DE OTIMIZACAO V53 (STABILITY & EXTENDED TOOLS)
 # =================================================================
 $ErrorActionPreference = 'SilentlyContinue'
 $FixedW = 100 
-$Version = "V52"
-# COLOQUE O LINK "RAW" DO SEU GITHUB AQUI DEPOIS:
+$Version = "V53"
 $UpdateURL = "https://raw.githubusercontent.com/jefheee/System-Optimizer-Tool/main/MotorLimpeza.ps1"
 
 Add-Type -AssemblyName System.Windows.Forms
@@ -150,80 +149,88 @@ function Start-RAMCleaner {
 }
 
 function Start-AutoUpdate {
+    Show-Center "Configurando seguranca de conexao (TLS 1.2)..." "DarkGray"
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     Show-Center "Verificando atualizacoes no GitHub..." "Cyan"
     try {
-        $NewScript = Invoke-RestMethod -Uri $UpdateURL
+        $NewScript = Invoke-RestMethod -Uri $UpdateURL -UseBasicParsing
         if ($NewScript -match "SYSTEM OPTIMIZER") {
             Set-Content -Path $MyInvocation.MyCommand.Path -Value $NewScript
             Show-Center "Atualizado com sucesso! Reinicie o script." "Green"
         } else {
-            Show-Center "Nenhuma atualizacao encontrada ou erro no link." "Yellow"
+            Show-Center "Nenhuma atualizacao encontrada." "Yellow"
         }
     } catch {
-        Show-Center "Erro ao conectar. Configure o link do GitHub no script." "Red"
+        Show-Center "Erro ao conectar: $($_.Exception.Message)" "Red"
     }
     Wait-User
 }
 
-function Start-DriverRepair {
-    Show-Center "Escaneando drivers com problemas..." "Cyan"
-    # Força o Windows a re-detectar hardware
-    pnputil /scan-devices
-    # Lista dispositivos com erro
-    $BadDrivers = Get-PnpDevice | Where-Object { $_.Status -eq "Error" -or $_.Status -eq "Degraded" }
-    
-    if ($BadDrivers) {
-        Write-Host ""
-        Show-Center "Encontrados dispositivos com erro:" "Red"
-        foreach ($D in $BadDrivers) { Show-Center "$($D.FriendlyName) ($($D.InstanceId))" "Yellow" }
-        Write-Host ""
-        Show-Center "Tentativa de reparo (Reset) executada." "Cyan"
-        Show-Center "Se persistir, baixe o driver no site do fabricante." "Gray"
-    } else {
-        Show-Center "Nenhum erro de driver detectado apos o scan." "Green"
+function Start-BottleneckTest {
+    Clear-Host; Show-Center "--- MONITOR DE GARGALO (BOTTLENECK) ---" "Cyan"
+    Show-Center "Analisando carga do processador por 10 segundos..." "Gray"; Write-Host ""
+    $CpuLoad = 0
+    for ($i=1; $i -le 10; $i++) {
+        $Val = (Get-WmiObject Win32_Processor | Measure-Object -Property LoadPercentage -Average).Average
+        $CpuLoad += $Val
+        Write-Host "`rColetando amostra $i/10: $Val% CPU" -NoNewline -ForegroundColor Green; Start-Sleep 1
     }
-    Start-Sleep 3
+    $Avg = [math]::Round($CpuLoad / 10, 1)
+    Write-Host "`n"; Show-Center "Uso Medio da CPU: $Avg%" "White"
+    if ($Avg -gt 85) { Show-Center "GARGALO DE CPU! Seu processador esta limitando o desempenho." "Red" }
+    elseif ($Avg -lt 25) { Show-Center "CPU Folgada! Placa de Video limitando (O Ideal)." "Green" }
+    else { Show-Center "Sistema operando com carga equilibrada." "Yellow" }
+    Wait-User
 }
 
-function Start-VisualCacheFix {
-    Show-Center "Limpando Caches Visuais (Icones/Fontes)..." "Cyan"
-    try {
-        Remove-Item "$env:LOCALAPPDATA\IconCache.db" -Force -ErrorAction SilentlyContinue
-        Remove-Item "$env:LOCALAPPDATA\Microsoft\Windows\Explorer\iconcache*" -Force -ErrorAction SilentlyContinue
-        Remove-Item "$env:LOCALAPPDATA\Microsoft\Windows\Explorer\thumbcache*" -Force -ErrorAction SilentlyContinue
-        Show-Center "Concluido. O Explorer pode piscar." "Green"
-    } catch { Show-Center "Erro parcial." "Red" }
-    Start-Sleep 2
+function Start-JitterTest {
+    Clear-Host; Show-Center "--- TESTE DE ESTABILIDADE PING ---" "Cyan"
+    Show-Center "Calculando variacao (Jitter) da sua internet..." "Gray"; Write-Host ""
+    $Pings = @(); $Total = 0
+    for ($i=1; $i -le 10; $i++) {
+        $Ms = (Test-Connection 8.8.8.8 -Count 1).ResponseTime
+        $Pings += $Ms; $Total += $Ms
+        Write-Host "`rDisparo $i/10: ${Ms}ms" -NoNewline -ForegroundColor Green; Start-Sleep -Milliseconds 200
+    }
+    $Avg = $Total / 10; $JitterSum = 0
+    for ($i=0; $i -lt 9; $i++) { $JitterSum += [math]::Abs($Pings[$i] - $Pings[$i+1]) }
+    $Jitter = [math]::Round($JitterSum / 9, 2)
+    Write-Host "`n"; Show-Center "Ping Medio: $Avg ms  |  Oscilacao (Jitter): $Jitter ms" "White"
+    if ($Jitter -lt 5) { Show-Center "Internet PERFEITA para jogos." "Green" }
+    elseif ($Jitter -lt 15) { Show-Center "Internet BOA (Pode dar leves engasgos)." "Yellow" }
+    else { Show-Center "Internet INSTAVEL (Muitos picos de lag)." "Red" }
+    Wait-User
 }
 
-function Start-UACControl {
-    Show-Center "[1] Ativar UAC (Padrao)  [2] Desativar UAC (Silencioso)" "White"
-    $Key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").Character
-    $Reg = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
-    if ($Key -eq '2') {
-        Set-ItemProperty -Path $Reg -Name "ConsentPromptBehaviorAdmin" -Value 0 -Force
-        Set-ItemProperty -Path $Reg -Name "EnableLUA" -Value 0 -Force
-        Show-Center "UAC Desativado (Requer Reinicio)." "Yellow"
-    } else {
-        Set-ItemProperty -Path $Reg -Name "ConsentPromptBehaviorAdmin" -Value 5 -Force
-        Set-ItemProperty -Path $Reg -Name "EnableLUA" -Value 1 -Force
-        Show-Center "UAC Restaurado." "Green"
+# --- FUNÇÕES ADICIONAIS (IDEIAS NOVAS) ---
+
+function Start-AppxRestore {
+    Show-Center "Reinstalando aplicativos nativos do Windows (Pode demorar)..." "Cyan"
+    Get-AppxPackage -AllUsers | ForEach-Object {
+        Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml" -ErrorAction SilentlyContinue
     }
-    Start-Sleep 1
+    Show-Center "Aplicativos padrao restaurados com sucesso!" "Green"
 }
 
-function Start-ShutdownScheduler {
-    Show-Center "Digite os minutos para desligar (ex: 60) ou 0 para cancelar:" "White"
-    $Min = Read-Host
-    if ($Min -gt 0) {
-        $Sec = [int]$Min * 60
-        shutdown -s -t $Sec
-        Show-Center "Agendado para desligar em $Min minutos." "Green"
-    } else {
-        shutdown -a
-        Show-Center "Agendamento cancelado." "Yellow"
+function Start-NetAdapterReset {
+    Show-Center "Reiniciando adaptadores fisicos de rede..." "Cyan"
+    $Adapters = Get-NetAdapter | Where-Object { $_.Status -eq "Up" }
+    foreach ($A in $Adapters) {
+        Disable-NetAdapter -Name $A.Name -Confirm:$false -ErrorAction SilentlyContinue
+        Start-Sleep 2
+        Enable-NetAdapter -Name $A.Name -Confirm:$false -ErrorAction SilentlyContinue
     }
-    Start-Sleep 2
+    Show-Center "Adaptadores reiniciados e IPs renovados!" "Green"
+}
+
+function Start-CopilotToggle {
+    Show-Center "Desativando Copilot e funcoes de IA..." "Cyan"
+    $RegPath = "HKCU:\Software\Policies\Microsoft\Windows\WindowsCopilot"
+    if (-not (Test-Path $RegPath)) { New-Item -Path $RegPath -Force | Out-Null }
+    Set-ItemProperty -Path $RegPath -Name "TurnOffWindowsCopilot" -Value 1 -Force
+    $RegExplorer = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+    Set-ItemProperty -Path $RegExplorer -Name "ShowCopilotButton" -Value 0 -Force
+    Show-Center "Copilot desativado. Reinicie o PC para aplicar." "Green"
 }
 
 # --- MÓDULOS PRINCIPAIS ---
@@ -231,18 +238,16 @@ function Start-ShutdownScheduler {
 function Modulo-Diagnostico {
     Show-Center "=== DIAGNOSTICO DO PC ===" "White"; Write-Host ""
     
-    # SISTEMA
     try {
         $OS = Get-CimInstance Win32_OperatingSystem
         $Boot = $OS.LastBootUpTime; $Up = (Get-Date) - $Boot
         Show-Center "SISTEMA OPERACIONAL" "Cyan"
         Show-Center "Windows: $($OS.Caption) (Build $($OS.BuildNumber))" "White"
-        Show-Center "Ligado ha: $($Up.Days)d $($Up.Hours)h $($Up.Minutes)m" "Gray"
+        Show-Center "Ligado ha: $($Up.Days)d $($Up.Hours)h $($Up.Minutes)m" "White"
     } catch {}
     
     Write-Host ""
     
-    # HARDWARE EM PIRÂMIDE (Ordenado por tamanho do texto)
     try {
         $CPU = (Get-CimInstance Win32_Processor).Name
         $GPU = (Get-CimInstance Win32_VideoController | Select-Object -First 1).Name
@@ -261,8 +266,6 @@ function Modulo-Diagnostico {
         $RamSummary = "$RamTotalGB GB ($($RamDetails -join ' + '))"
 
         Show-Center "HARDWARE PRINCIPAL" "Cyan"
-        
-        # Cria array e ordena por tamanho (PIRÂMIDE REAL)
         $HwItems = @(
             "[GPU] $GPU",
             "[RAM] $RamSummary",
@@ -283,6 +286,7 @@ function Modulo-Diagnostico {
         $Size = [Math]::Round($D.Size / 1GB, 0)
         $Type = if ($D.MediaType -eq "Unspecified") { "SSD" } else { $D.MediaType }
         $Color = if ($D.HealthStatus -eq "Healthy") { "Green" } else { "Red" }
+        # Textos puramente brancos, apenas Status colorido
         Show-Dual-Center "$Type - $Size GB - ($($D.Model))" "[$($D.HealthStatus)]" "White" $Color
     }
     
@@ -290,7 +294,6 @@ function Modulo-Diagnostico {
     try {
         $P1 = (Test-Connection 8.8.8.8 -Count 1).ResponseTime
         $P2 = (Test-Connection 1.1.1.1 -Count 1).ResponseTime
-        # Google e Cloudflare em Branco para neutralidade
         Show-Dual-Center "Google: ${P1}ms" "Cloudflare: ${P2}ms" "White" "White"
     } catch { Show-Center "Sem Internet" "Red" }
     
@@ -321,7 +324,7 @@ function Modulo-Otimizacao {
     }
 
     Show-Center "Esvaziando Lixeira..." "Cyan"
-    try { Clear-RecycleBin -Force -ErrorAction SilentlyContinue } catch {}
+    try { Clear-RecycleBin -Force -ErrorAction SilentlyContinue | Out-Null } catch {}
 
     Show-Center "Resetando Cache de Icones..." "Cyan"
     try { Remove-Item "$env:LOCALAPPDATA\IconCache.db" -Force -ErrorAction SilentlyContinue } catch {}
@@ -369,9 +372,9 @@ function Modulo-Gamer {
         Draw-Separator
         Draw-Menu-Item "6" "OTIMIZAR TECLADO" "GAMER" "Garante resposta rapida ao segurar teclas"
         Draw-Separator
-        Draw-Menu-Item "7" "REDUZIR PACOTES REDE" "GAMER" "Otimiza o registro TCP para jogos online"
+        Draw-Menu-Item "7" "TESTAR ESTABILIDADE PING" "GAMER" "Descubra se sua internet trava jogos"
         Draw-Separator
-        Draw-Menu-Item "8" "SALVAR PROGRESSO (SAVES)" "GAMER" "Faz copia dos seus jogos pro Desktop"
+        Draw-Menu-Item "8" "MONITOR DE GARGALO" "GAMER" "Veja se o Processador limita seu jogo"
         Draw-Separator
         Draw-Menu-Item "0" "VOLTAR" "---" "Retornar ao Menu Inicial"
         
@@ -389,17 +392,8 @@ function Modulo-Gamer {
                 Show-Center "Aceleracao desativada. Precisao 1:1 aplicada perfeitamente." "Green"; Start-Sleep 2 
             }
             '6' { Start-FilterKeys; Start-Sleep 2 }
-            '7' { Start-NetworkPacketReducer; Start-Sleep 2 }
-            '8' { 
-                $Dest = "$env:USERPROFILE\Desktop\Backup_Saves_$(Get-Date -Format 'dd-MM')"
-                New-Item -ItemType Directory -Force -Path $Dest | Out-Null
-                $Targets = @("Documents\My Games", "Saved Games", "Documents\Call of Duty", "Documents\Rockstar Games", "Documents\WB Games", "AppData\Local\TslGame")
-                foreach ($T in $Targets) {
-                    $F = "$env:USERPROFILE\$T".Replace("AppData", "AppData")
-                    if (Test-Path $F) { Copy-Item $F -Destination "$Dest\$(Split-Path $F -Leaf)" -Recurse -Force; Show-Center "Copiado: $T" "DarkGray" }
-                }
-                Show-Center "Saves guardados na Area de Trabalho!" "Green"; Start-Sleep 2
-            }
+            '7' { Start-JitterTest }
+            '8' { Start-BottleneckTest }
             '0' { return }
         }
     } while ($true)
@@ -407,25 +401,23 @@ function Modulo-Gamer {
 
 function Modulo-SystemTools {
     do {
-        Clear-Host; Draw-Header; Show-Center "=== FERRAMENTAS DO SISTEMA ===" "Yellow"; Write-Host ""
+        Clear-Host; Draw-Header; Show-Center "=== FERRAMENTAS DO SISTEMA (PAGINA 1) ===" "Yellow"; Write-Host ""
         
         Draw-Menu-Item "1" "WINUTIL (CHRIS TITUS)" "SISTEMA" "Ferramenta Externa Super Completa"
         Draw-Separator
-        Draw-Menu-Item "2" "REPARAR DRIVERS" "SISTEMA" "Tenta corrigir drivers com erro"
+        Draw-Menu-Item "2" "ARRUMAR WINDOWS UPDATE" "SISTEMA" "Destrava atualizacoes presas"
         Draw-Separator
         Draw-Menu-Item "3" "ESCOLHER MELHOR DNS" "SISTEMA" "Muda a rede para a mais rapida"
         Draw-Separator
-        Draw-Menu-Item "4" "CORRIGIR FONTE/ICONE" "SISTEMA" "Limpa cache visual do Windows"
+        Draw-Menu-Item "4" "REPARAR ARQUIVOS WINDOWS" "SISTEMA" "Verifica e corrige tela azul e erros"
         Draw-Separator
-        Draw-Menu-Item "5" "APAGAR APPS INUTEIS" "SISTEMA" "Remove Cortana, Xbox GameBar, etc"
+        Draw-Menu-Item "5" "LIMPAR TAREFAS ORFAS" "SISTEMA" "Apaga gatilhos de apps excluidos"
         Draw-Separator
-        Draw-Menu-Item "6" "CONTROLE DE UAC" "SISTEMA" "Ativar ou Desativar avisos de Admin"
+        Draw-Menu-Item "6" "APAGAR APPS INUTEIS" "SISTEMA" "Remove Cortana, Xbox GameBar, etc"
         Draw-Separator
         Draw-Menu-Item "7" "DESATIVAR TELEMETRIA" "SISTEMA" "Impede o Windows de te rastrear"
         Draw-Separator
-        Draw-Menu-Item "8" "AGENDAR DESLIGAMENTO" "SISTEMA" "Cronometro para desligar o PC"
-        Draw-Separator
-        Draw-Menu-Item "9" "ATUALIZAR SCRIPT" "SISTEMA" "Baixa a versao mais recente do GitHub"
+        Draw-Menu-Item "9" "MAIS FERRAMENTAS..." "SISTEMA" "Ir para a Pagina 2 de funcoes"
         Draw-Separator
         Draw-Menu-Item "0" "VOLTAR" "---" "Retornar ao Menu Inicial"
         
@@ -433,7 +425,7 @@ function Modulo-SystemTools {
         $K = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").Character
         switch ($K) {
             '1' { try { irm "https://christitus.com/win" | iex } catch { Show-Center "Sem internet." "Red"; Start-Sleep 2 } }
-            '2' { Start-DriverRepair }
+            '2' { Stop-Service wuauserv; Stop-Service bits; Remove-Item "$env:windir\SoftwareDistribution" -Recurse -Force -ErrorAction SilentlyContinue; Start-Service wuauserv; Start-Service bits; Show-Center "Update Resetado." "Green"; Start-Sleep 2 }
             '3' {
                 Show-Center "Testando Velocidade..." "Cyan"
                 $G = (Test-Connection 8.8.8.8 -Count 1).ResponseTime; $C = (Test-Connection 1.1.1.1 -Count 1).ResponseTime
@@ -441,12 +433,46 @@ function Modulo-SystemTools {
                 else { Set-DnsClientServerAddress -InterfaceIndex (Get-NetAdapter).InterfaceIndex -ServerAddresses ("8.8.8.8","8.8.4.4"); Show-Center "Google Ativado." "Green" }
                 Start-Sleep 2
             }
-            '4' { Start-VisualCacheFix }
-            '5' { Get-AppxPackage "*Cortana*" | Remove-AppxPackage; Get-AppxPackage "*XboxGamingOverlay*" | Remove-AppxPackage; Show-Center "Apps removidos." "Green"; Start-Sleep 2 }
-            '6' { Start-UACControl }
+            '4' { Show-Center "Isso pode demorar. Aguarde..." "Cyan"; sfc /scannow; dism /online /cleanup-image /restorehealth; Wait-User }
+            '5' { 
+                $Tasks = Get-ScheduledTask | Where-Object { $_.Actions.Execute -ne $null }
+                foreach ($T in $Tasks) {
+                    $P = $T.Actions.Execute.Replace('"', ''); if ($P -match "^[a-zA-Z]:\\") { if (-not (Test-Path $P)) { Unregister-ScheduledTask -TaskName $T.TaskName -Confirm:$false -ErrorAction SilentlyContinue | Out-Null } }
+                }
+                Show-Center "Tarefas Orfas Limpas." "Green"; Start-Sleep 2
+            }
+            '6' { Get-AppxPackage "*Cortana*" | Remove-AppxPackage; Get-AppxPackage "*XboxGamingOverlay*" | Remove-AppxPackage; Show-Center "Apps removidos." "Green"; Start-Sleep 2 }
             '7' { Stop-Service DiagTrack -ErrorAction SilentlyContinue; Set-Service DiagTrack -StartupType Disabled; Show-Center "Rastreamento Desativado." "Green"; Start-Sleep 2 }
-            '8' { Start-ShutdownScheduler }
-            '9' { Start-AutoUpdate }
+            '9' { Modulo-SystemTools-Pag2 }
+            '0' { return }
+        }
+    } while ($true)
+}
+
+function Modulo-SystemTools-Pag2 {
+    do {
+        Clear-Host; Draw-Header; Show-Center "=== FERRAMENTAS DO SISTEMA (PAGINA 2) ===" "Yellow"; Write-Host ""
+        
+        Draw-Menu-Item "1" "RESTAURAR APPS PADRAO" "SISTEMA" "Reinstala Calculadora, Loja e Nativos"
+        Draw-Separator
+        Draw-Menu-Item "2" "REINICIAR ADAPTADOR REDE" "SISTEMA" "Desliga e liga a internet fisicamente"
+        Draw-Separator
+        Draw-Menu-Item "3" "DESATIVAR IA E COPILOT" "SISTEMA" "Remove recursos de IA do Windows"
+        Draw-Separator
+        Draw-Menu-Item "4" "REDUZIR PACOTES REDE" "SISTEMA" "Otimiza envio de dados TCP"
+        Draw-Separator
+        Draw-Menu-Item "5" "ATUALIZAR SCRIPT" "SISTEMA" "Baixa a versao mais recente do GitHub"
+        Draw-Separator
+        Draw-Menu-Item "0" "VOLTAR" "---" "Retornar a Pagina 1"
+        
+        Write-Host "`n"; Show-Center "Escolha uma Opcao:" "Cyan"
+        $K = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").Character
+        switch ($K) {
+            '1' { Start-AppxRestore; Start-Sleep 2 }
+            '2' { Start-NetAdapterReset }
+            '3' { Start-CopilotToggle; Start-Sleep 2 }
+            '4' { Start-NetworkPacketReducer; Start-Sleep 2 }
+            '5' { Start-AutoUpdate }
             '0' { return }
         }
     } while ($true)
@@ -466,7 +492,7 @@ function Modulo-Mas {
 # --- MENU PRINCIPAL ---
 do {
     Draw-Header
-    Draw-Menu-Item "1" "OTIMIZAR AGORA" "LIMPEZA" "Limpar Lixo, Cache e Otimizar PC"
+    Draw-Menu-Item "1" "OTIMIZAR AGORA" "LIMPEZA" "Esvazia lixeira, limpa sistema e melhora RAM"
     Draw-Separator
     Draw-Menu-Item "2" "WINDOWS ACTIVATOR" "ATIVADOR" "Ativa o Windows e o pacote Office para sempre"
     Draw-Separator
