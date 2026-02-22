@@ -60,7 +60,7 @@ A arquitetura, a lógica de quais chaves de registro modificar, a escolha das fe
 2.  Extraia o conteúdo do arquivo `.zip` ou `.rar` para uma pasta.
 3.  Execute o arquivo **`SystemOptimizer.bat`**.
 4.  O script solicitará privilégios de Administrador automaticamente. Confirme.
-5.  Selecione seu idioma preferido no primeiro acesso (visual de pirâmide invertida).
+5.  Selecione seu idioma preferido no primeiro acesso.
 
 ---
 
