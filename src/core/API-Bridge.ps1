@@ -39,14 +39,14 @@ $BackendModules = @(
 )
 
 foreach ($Module in $BackendModules) {
-    $Combined = Join-Path $ScriptPath $Module
+    $Combined = Join-Path $PSScriptRoot $Module
     $FullPath = [System.IO.Path]::GetFullPath($Combined)
     if (Test-Path $FullPath) {
         . $FullPath
     } else {
         $ErrorObj = [PSCustomObject]@{
             Status  = "Error"
-            Message = "Falha ao carregar dependecia critica de backend na Bridge: $Module ($FullPath)"
+            Message = "Modulo ausente: $FullPath"
         }
         $ErrorObj | ConvertTo-Json -Depth 10 -Compress
         exit 1
@@ -56,6 +56,7 @@ foreach ($Module in $BackendModules) {
 # Roteia a requisição da API de forma puramente programática
 $OutputObj = $null
 try {
+    $ErrorActionPreference = 'Stop'
     switch ($Action) {
         "Diagnostics"          { $OutputObj = Get-SystemDiagnostics }
         "OptimizeDeep"         { $OutputObj = Invoke-Optimization }
