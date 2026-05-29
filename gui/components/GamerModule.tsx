@@ -169,33 +169,40 @@ export default function GamerModule() {
           </div>
         </div>
 
-        {/* Rede & Game DVR (SetNetwork, SetGameDVR) */}
+        {/* Rede, DVR & Shaders (SetNetwork, SetGameDVR, ResetDirectX) */}
         <div className="p-5 rounded-2xl bg-zinc-900/40 border border-zinc-800/60 backdrop-blur-xl hover:border-cyan-500/20 transition-all duration-300 space-y-4">
           <div className="flex items-start gap-4">
             <div className="p-3 bg-amber-500/10 rounded-xl text-amber-400">
               <Wifi className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-zinc-200 text-sm">Rede & DVR (FSE e Latência Pacotes)</h4>
+              <h4 className="font-bold text-zinc-200 text-sm">Rede, DVR & Cache Shaders</h4>
               <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
-                Desativa o algoritmo de Nagle (TcpAckFrequency) nos adaptadores e ajusta o GameDVR no Registro para evitar lags no Alt+Tab.
+                Desativa o algoritmo de Nagle (TcpAckFrequency), otimiza o GameDVR no Registro e permite resetar o cache de shaders do DirectX.
               </p>
             </div>
           </div>
-          <div className="flex gap-3 pt-2">
+          <div className="flex flex-wrap gap-3 pt-2">
             <button
               onClick={() => runAction("network", "SetNetwork")}
               disabled={activeActions["network"]}
-              className="flex-1 py-2 rounded-xl bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-750 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+              className="flex-1 min-w-[110px] py-2 rounded-xl bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-750 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
             >
               {activeActions["network"] ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Otimizar TCP"}
             </button>
             <button
               onClick={() => runAction("gamedvr", "SetGameDVR")}
               disabled={activeActions["gamedvr"]}
-              className="flex-1 py-2 rounded-xl bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-750 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+              className="flex-1 min-w-[110px] py-2 rounded-xl bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-750 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
             >
-              {activeActions["gamedvr"] ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Desativar Game DVR"}
+              {activeActions["gamedvr"] ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Desativar DVR"}
+            </button>
+            <button
+              onClick={() => runAction("directx", "ResetDirectX")}
+              disabled={activeActions["directx"]}
+              className="flex-1 min-w-[110px] py-2 rounded-xl bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-750 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+            >
+              {activeActions["directx"] ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Limpar Shaders"}
             </button>
           </div>
         </div>
