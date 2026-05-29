@@ -7,28 +7,41 @@ use std::process::Command;
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
 
+use tauri::Manager;
+use tauri::path::BaseDirectory;
+
 /// Executa um script PowerShell de forma silenciosa e retorna a string JSON de saída
 #[tauri::command]
 fn invoke_powershell(app: tauri::AppHandle, action: String, args: Option<String>) -> Result<String, String> {
     let args_str = args.unwrap_or_default();
     
-    // TODO: Em ambiente de producao (Single Executable), os scripts PowerShell sao embutidos como "resources"
-    // e devem ser resolvidos dinamicamente usando o Path Resolver nativo do Tauri v2:
-    //
-    // use tauri::Manager;
-    // let bridge_path = app.path()
-    //     .resolve_directory("src/core/API-Bridge.ps1", tauri::path::BaseDirectory::Resource)
-    //     .map_err(|e| format!("{{\"Status\":\"Error\",\"Message\":\"Erro ao resolver resources: {}\"}}", e))?;
-    //
-    // Para modo de desenvolvimento (dev), usamos o caminho relativo simples:
-    let script_file = "../src/core/API-Bridge.ps1";
+    // Resolve o caminho dinamicamente para dev e prod (Tauri v2 BaseDirectory::Resource)
+    let mut script_path = None;
+    
+    for path_candidate in &[
+        "_up_/_up_/src/core/API-Bridge.ps1",
+        "src/core/API-Bridge.ps1",
+        "API-Bridge.ps1"
+    ] {
+        if let Ok(resolved) = app.path().resolve(path_candidate, BaseDirectory::Resource) {
+            if resolved.exists() {
+                script_path = Some(resolved);
+                break;
+            }
+        }
+    }
+
+    let script_file = match script_path {
+        Some(path) => path.to_string_lossy().into_owned(),
+        None => "../src/core/API-Bridge.ps1".to_string(),
+    };
     
     let mut command = Command::new("powershell.exe");
     command.arg("-NoProfile")
            .arg("-ExecutionPolicy")
            .arg("Bypass")
            .arg("-File")
-           .arg(script_file)
+           .arg(&script_file)
            .arg("-Action")
            .arg(&action)
            .arg("-Args")

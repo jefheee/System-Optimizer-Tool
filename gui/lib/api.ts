@@ -62,6 +62,11 @@ export interface ActionResponse {
   Value?: string;
   Step?: string;
   Target?: string;
+  Action?: string;
+  BestDNS?: string;
+  DeletedCount?: number;
+  RemovedApps?: string[];
+  Destination?: string;
 }
 
 /**
