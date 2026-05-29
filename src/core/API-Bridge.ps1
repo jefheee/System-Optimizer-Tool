@@ -97,18 +97,21 @@ try {
             $OutputObj = [PSCustomObject]@{ Status = "Success"; Message = "MAS (Ativador de Office) foi iniciado em uma nova janela." }
         }
         "SetTheme" {
-            $ThemeFile = Join-Path $ScriptPath "theme.txt"
+            $CliFolder = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\..\cli"))
+            $ThemeFile = Join-Path $CliFolder "theme.txt"
             Set-Content $ThemeFile $Args -Force
             $OutputObj = [PSCustomObject]@{ Status = "Success"; Message = "Tema alterado para $Args com sucesso." }
         }
         "SetLanguage" {
-            $PrefFile = Join-Path $ScriptPath "lang.ini"
+            $CliFolder = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\..\cli"))
+            $PrefFile = Join-Path $CliFolder "lang.ini"
             Set-Content $PrefFile $Args -Force
             $OutputObj = [PSCustomObject]@{ Status = "Success"; Message = "Idioma alterado para $Args com sucesso." }
         }
         "ResetSettings" {
-            $ThemeFile = Join-Path $ScriptPath "theme.txt"
-            $PrefFile = Join-Path $ScriptPath "lang.ini"
+            $CliFolder = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\..\cli"))
+            $ThemeFile = Join-Path $CliFolder "theme.txt"
+            $PrefFile = Join-Path $CliFolder "lang.ini"
             Remove-Item $ThemeFile -Force -ErrorAction SilentlyContinue
             Remove-Item $PrefFile -Force -ErrorAction SilentlyContinue
             $OutputObj = [PSCustomObject]@{ Status = "Success"; Message = "Configuracoes e arquivos de preferencia resetados ao padrao." }

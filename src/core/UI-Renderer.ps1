@@ -2,7 +2,8 @@
 # SYSTEM OPTIMIZER - UI RENDERER MODULE (CONSOLE UI ENGINE)
 # =================================================================
 
-$ThemeFile = Join-Path $ScriptPath "theme.ini"
+$CliFolder = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\..\cli"))
+$ThemeFile = Join-Path $CliFolder "theme.txt"
 $global:AppTheme = if (Test-Path $ThemeFile) { (Get-Content $ThemeFile).Trim() } else { "Cyan" }
 
 # Configura o buffer do terminal para evitar quebra de layout e tela preta

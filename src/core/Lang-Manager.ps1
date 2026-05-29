@@ -2,8 +2,9 @@
 # SYSTEM OPTIMIZER - LANG MANAGER MODULE (TRANSLATION ENGINE)
 # =================================================================
 
-$LangJsonPath = Join-Path $ScriptPath "lang.json"
-$PrefFile = Join-Path $ScriptPath "lang.ini"
+$CliFolder = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\..\cli"))
+$LangJsonPath = Join-Path $CliFolder "lang.json"
+$PrefFile = Join-Path $CliFolder "lang.ini"
 
 # Carrega o dicionário JSON de traduções
 if (Test-Path $LangJsonPath) {

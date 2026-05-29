@@ -9,9 +9,8 @@ import {
   Settings as SysIcon, 
   Info,
   Shield,
-  Key,
-  Sliders,
-  ChevronRight
+  Briefcase,
+  Sliders
 } from "lucide-react";
 
 // Módulos
@@ -19,11 +18,11 @@ import DashboardModule from "../components/DashboardModule";
 import GamerModule from "../components/GamerModule";
 import SystemModule from "../components/SystemModule";
 import CleanModule from "../components/CleanModule";
-import ActivatorModule from "../components/ActivatorModule";
+import ExternalToolsModule from "../components/ExternalToolsModule";
 import SettingsModule from "../components/SettingsModule";
 import AboutModule from "../components/AboutModule";
 
-type Tab = "dashboard" | "clean" | "gamer" | "system" | "activator" | "settings" | "about";
+type Tab = "dashboard" | "clean" | "gamer" | "system" | "external" | "settings" | "about";
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState<Tab>("dashboard");
@@ -34,8 +33,8 @@ export default function Page() {
     { id: "clean", label: "Limpeza de Disco", icon: Trash2, color: "text-orange-400" },
     { id: "gamer", label: "Gamer Latency", icon: Gamepad2, color: "text-tertiary" },
     { id: "system", label: "Sistema & Reparos", icon: SysIcon, color: "text-secondary" },
-    { id: "activator", label: "Ativação (MAS)", icon: Key, color: "text-red-400" },
-    { id: "settings", label: "Configurações", icon: Sliders, color: "text-primary" },
+    { id: "external", label: "Ferramentas", icon: Briefcase, color: "text-primary" },
+    { id: "settings", label: "Configurações", icon: Sliders, color: "text-blue-400" },
     { id: "about", label: "Sobre o App", icon: Info, color: "text-zinc-400" }
   ] as const;
 
@@ -49,8 +48,8 @@ export default function Page() {
         return <GamerModule />;
       case "system":
         return <SystemModule />;
-      case "activator":
-        return <ActivatorModule />;
+      case "external":
+        return <ExternalToolsModule />;
       case "settings":
         return <SettingsModule />;
       case "about":
