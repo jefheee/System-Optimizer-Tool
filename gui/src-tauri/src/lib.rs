@@ -9,15 +9,26 @@ use std::os::windows::process::CommandExt;
 
 /// Executa um script PowerShell de forma silenciosa e retorna a string JSON de saída
 #[tauri::command]
-fn invoke_powershell(action: String, args: Option<String>) -> Result<String, String> {
+fn invoke_powershell(app: tauri::AppHandle, action: String, args: Option<String>) -> Result<String, String> {
     let args_str = args.unwrap_or_default();
+    
+    // TODO: Em ambiente de producao (Single Executable), os scripts PowerShell sao embutidos como "resources"
+    // e devem ser resolvidos dinamicamente usando o Path Resolver nativo do Tauri v2:
+    //
+    // use tauri::Manager;
+    // let bridge_path = app.path()
+    //     .resolve_directory("src/core/API-Bridge.ps1", tauri::path::BaseDirectory::Resource)
+    //     .map_err(|e| format!("{{\"Status\":\"Error\",\"Message\":\"Erro ao resolver resources: {}\"}}", e))?;
+    //
+    // Para modo de desenvolvimento (dev), usamos o caminho relativo simples:
+    let script_file = "../src/core/API-Bridge.ps1";
     
     let mut command = Command::new("powershell.exe");
     command.arg("-NoProfile")
            .arg("-ExecutionPolicy")
            .arg("Bypass")
            .arg("-File")
-           .arg("../src/core/API-Bridge.ps1")
+           .arg(script_file)
            .arg("-Action")
            .arg(&action)
            .arg("-Args")

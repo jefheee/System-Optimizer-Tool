@@ -73,6 +73,15 @@ export async function invokePowerShell<T>(action: string, args: string = ""): Pr
     throw new Error("O comando do Tauri nao pode ser invocado no Server-Side.");
   }
 
+  // Valida se o ambiente possui as APIs globais injetadas pelo webview do Tauri
+  const isTauri = (window as any).__TAURI_INTERNALS__ !== undefined || (window as any).__TAURI__ !== undefined;
+  if (!isTauri) {
+    return {
+      Status: "Error",
+      Message: "A interface grafica deve ser executada via Tauri e nao em um navegador convencional."
+    } as unknown as T;
+  }
+
   try {
     // Importa dinamicamente a API do Tauri para evitar quebra no build Next.js
     const { invoke } = await import("@tauri-apps/api/core");
