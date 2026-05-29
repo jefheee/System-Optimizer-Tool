@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { invokePowerShell, ActionResponse } from "../lib/api";
+import { useI18n, Language } from "../lib/i18n";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Sliders, 
@@ -16,8 +17,7 @@ import {
 export default function SettingsModule() {
   const [activeActions, setActiveActions] = useState<Record<string, boolean>>({});
   const [results, setResults] = useState<Record<string, ActionResponse>>({});
-
-  const [currentLang, setCurrentLang] = useState("PT");
+  const { language: currentLang, setLanguage, t } = useI18n();
   const [currentTheme, setCurrentTheme] = useState("Cyan");
 
   const runAction = async (actionId: string, actionName: string, args: string) => {
@@ -26,12 +26,10 @@ export default function SettingsModule() {
       const res = await invokePowerShell<ActionResponse>(actionName, args);
       setResults(prev => ({ ...prev, [actionId]: res }));
       if (res.Status === "Success") {
-        if (actionName === "SetLanguage") {
-          setCurrentLang(args);
-        } else if (actionName === "SetTheme") {
+        if (actionName === "SetTheme") {
           setCurrentTheme(args);
         } else if (actionName === "ResetSettings") {
-          setCurrentLang("PT");
+          setLanguage("PT");
           setCurrentTheme("Cyan");
         }
       }
@@ -45,7 +43,12 @@ export default function SettingsModule() {
     }
   };
 
-  const languages = [
+  const changeLanguage = async (code: Language) => {
+    setLanguage(code);
+    await runAction("lang", "SetLanguage", code);
+  };
+
+  const languages: { code: Language; name: string }[] = [
     { code: "PT", name: "Português" },
     { code: "EN", name: "English" },
     { code: "ES", name: "Español" },
@@ -56,46 +59,46 @@ export default function SettingsModule() {
   ];
 
   const themes = [
-    { name: "Cyan", class: "bg-cyan-500 text-cyan-200" },
-    { name: "Green", class: "bg-emerald-500 text-emerald-200" },
-    { name: "Magenta", class: "bg-purple-600 text-purple-200" }
+    { name: "Cyan", class: "bg-primary/20 text-primary border-primary/30" },
+    { name: "Green", class: "bg-tertiary/20 text-tertiary border-tertiary/30" },
+    { name: "Magenta", class: "bg-secondary/20 text-secondary border-secondary/30" }
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-card-entry">
       <div>
-        <h2 className="text-xl font-extrabold text-zinc-100 tracking-tight flex items-center gap-2">
-          <Sliders className="w-5 h-5 text-blue-400" />
-          Configurações de Preferências
+        <h2 className="text-xl font-bold font-headline-lg text-[#e5e2e1] tracking-tight flex items-center gap-2">
+          <Sliders className="w-5 h-5 text-primary" />
+          {t("settings.title")}
         </h2>
-        <p className="text-xs text-zinc-500 mt-1">
-          Ajuste as preferências gerais do System Optimizer, como idioma de tradução e temas de cor.
+        <p className="text-xs text-on-surface-variant mt-1">
+          {t("settings.subtitle")}
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
-        {/* Idioma (SetLanguage) */}
-        <div className="p-6 rounded-2xl bg-zinc-900/40 border border-zinc-800/60 backdrop-blur-xl hover:border-blue-500/20 transition-all duration-300 space-y-4">
+        {/* Idioma */}
+        <div className="p-6 rounded-2xl glass-card hover:border-primary/20 transition-all duration-300 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-blue-500/10 rounded-xl text-blue-400">
+            <div className="p-3 bg-primary/10 rounded-xl text-primary">
               <Languages className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-zinc-200">Selecionar Idioma</h3>
+            <h3 className="font-bold text-zinc-200">{t("settings.lang.title")}</h3>
           </div>
-          <p className="text-xs text-zinc-500 leading-relaxed">
-            Selecione o idioma de tradução dos scripts internos. O idioma escolhido será gravado no arquivo de preferência local do PowerShell.
+          <p className="text-xs text-on-surface-variant leading-relaxed">
+            {t("settings.lang.desc")}
           </p>
           <div className="flex flex-wrap gap-2 pt-2">
             {languages.map(lang => (
               <button
                 key={lang.code}
-                onClick={() => runAction("lang", "SetLanguage", lang.code)}
+                onClick={() => changeLanguage(lang.code)}
                 disabled={activeActions["lang"] || currentLang === lang.code}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                   currentLang === lang.code
-                    ? "bg-blue-500/10 border-blue-500/30 text-blue-400 font-bold"
-                    : "bg-zinc-850 border-zinc-800 text-zinc-400 hover:text-zinc-250 hover:border-zinc-700"
+                    ? "bg-primary/10 border-primary/30 text-primary font-bold shadow-[0_0_10px_rgba(76,215,246,0.15)]"
+                    : "bg-surface-container border-white/5 text-zinc-400 hover:text-[#e5e2e1] hover:border-white/10"
                 }`}
               >
                 {lang.name}
@@ -105,29 +108,29 @@ export default function SettingsModule() {
         </div>
 
         {/* Tema Visual (SetTheme) */}
-        <div className="p-6 rounded-2xl bg-zinc-900/40 border border-zinc-800/60 backdrop-blur-xl hover:border-blue-500/20 transition-all duration-300 space-y-4">
+        <div className="p-6 rounded-2xl glass-card hover:border-primary/20 transition-all duration-300 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-blue-500/10 rounded-xl text-blue-400">
+            <div className="p-3 bg-primary/10 rounded-xl text-primary">
               <Palette className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-zinc-200">Tema do Terminal CLI</h3>
+            <h3 className="font-bold text-zinc-200">{t("settings.theme.title")}</h3>
           </div>
-          <p className="text-xs text-zinc-500 leading-relaxed">
-            Selecione o tema de cores padrão que o console do PowerShell utilizará ao ser executado em modo híbrido interativo.
+          <p className="text-xs text-on-surface-variant leading-relaxed">
+            {t("settings.theme.desc")}
           </p>
           <div className="flex gap-2 pt-2">
-            {themes.map(t => (
+            {themes.map(tOption => (
               <button
-                key={t.name}
-                onClick={() => runAction("theme", "SetTheme", t.name)}
-                disabled={activeActions["theme"] || currentTheme === t.name}
+                key={tOption.name}
+                onClick={() => runAction("theme", "SetTheme", tOption.name)}
+                disabled={activeActions["theme"] || currentTheme === tOption.name}
                 className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all ${
-                  currentTheme === t.name
-                    ? "bg-blue-500/10 border-blue-500/30 text-blue-400"
-                    : "bg-zinc-850 border-zinc-800 text-zinc-400 hover:text-zinc-250 hover:border-zinc-700"
+                  currentTheme === tOption.name
+                    ? `${tOption.class} font-bold`
+                    : "bg-surface-container border-white/5 text-zinc-400 hover:text-[#e5e2e1] hover:border-white/10"
                 }`}
               >
-                {t.name}
+                {tOption.name}
               </button>
             ))}
           </div>
@@ -136,27 +139,27 @@ export default function SettingsModule() {
       </div>
 
       {/* Restauração de Configurações */}
-      <div className="p-6 rounded-2xl bg-zinc-900/20 border border-zinc-900 flex items-center justify-between hover:border-red-500/10 transition-all duration-300 flex-wrap gap-4">
+      <div className="p-6 rounded-2xl glass-card flex items-center justify-between border-white/5 hover:border-error/20 transition-all duration-300 flex-wrap gap-4">
         <div className="flex items-start gap-4">
-          <div className="p-3 bg-red-500/10 rounded-xl text-red-500">
-            <RotateCcw className="w-5 h-5" />
+          <div className="p-3 bg-error-container/20 border border-error/10 rounded-xl text-error">
+            <RotateCcw className="w-5 h-5 animate-pulse" />
           </div>
           <div>
-            <h4 className="font-bold text-zinc-200 text-sm">Resetar Configurações</h4>
-            <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
-              Exclui os arquivos de preferências (`lang.ini` e `theme.txt`) restaurando o programa aos padrões originais.
+            <h4 className="font-bold text-zinc-200 text-sm">{t("settings.reset.title")}</h4>
+            <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">
+              {t("settings.reset.desc")}
             </p>
           </div>
         </div>
         <button
           onClick={() => runAction("reset", "ResetSettings", "")}
           disabled={activeActions["reset"]}
-          className="px-4 py-2.5 rounded-xl bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-750 text-xs font-bold text-red-400 hover:text-red-300 transition-all flex items-center gap-1.5"
+          className="px-4 py-2.5 rounded-xl bg-surface-container hover:bg-surface-container-high border border-white/5 hover:border-[#ff5555]/20 text-xs font-bold text-error hover:shadow-[0_0_10px_rgba(255,85,85,0.1)] transition-all flex items-center gap-1.5"
         >
           {activeActions["reset"] ? (
             <Loader2 className="w-3.5 h-3.5 animate-spin" />
           ) : (
-            "Restaurar Padrões"
+            t("settings.reset.btn")
           )}
         </button>
       </div>
@@ -165,13 +168,13 @@ export default function SettingsModule() {
       <AnimatePresence>
         {Object.keys(results).length > 0 && (
           <div className="mt-8 space-y-3">
-            <h3 className="text-xs font-bold text-zinc-400 tracking-wider uppercase flex items-center justify-between">
-              <span>Relatório de Configurações</span>
+            <h3 className="text-xs font-bold text-on-surface-variant tracking-wider uppercase flex items-center justify-between">
+              <span>{t("settings.log.title")}</span>
               <button 
                 onClick={() => setResults({})}
-                className="text-[10px] text-zinc-600 hover:text-zinc-400 transition-colors uppercase"
+                className="text-[10px] text-zinc-650 hover:text-zinc-400 transition-colors uppercase"
               >
-                Limpar Log
+                {t("settings.log.clear")}
               </button>
             </h3>
             <div className="space-y-2">
@@ -183,8 +186,8 @@ export default function SettingsModule() {
                   exit={{ opacity: 0, y: -10 }}
                   className={`p-4 rounded-xl border flex gap-3 text-xs ${
                     value.Status === "Success"
-                      ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                      : "bg-red-500/10 border-red-500/20 text-red-400"
+                      ? "bg-tertiary/10 border-tertiary/20 text-tertiary"
+                      : "bg-error-container/20 border-error/20 text-error"
                   }`}
                 >
                   {value.Status === "Success" ? (
@@ -193,7 +196,7 @@ export default function SettingsModule() {
                     <XCircle className="w-4 h-4 shrink-0 mt-0.5" />
                   )}
                   <div>
-                    <span className="font-extrabold capitalize text-zinc-200 block">{key}: {value.Status}</span>
+                    <span className="font-bold capitalize text-zinc-200 block">{key}: {value.Status}</span>
                     <span className="text-zinc-400 mt-1 block">{value.Message}</span>
                   </div>
                 </motion.div>

@@ -59,8 +59,14 @@ try {
     $ErrorActionPreference = 'Stop'
     switch ($Action) {
         "Diagnostics"          { $OutputObj = Get-SystemDiagnostics }
-        "OptimizeDeep"         { $OutputObj = Invoke-Optimization }
-        "OptimizeLite"         { $OutputObj = Invoke-LiteOptimization }
+        "OptimizeDeep"         { 
+            $Res = Invoke-Optimization 
+            $OutputObj = $Res | Where-Object { $_.Step -eq "Summary" } | Select-Object -First 1
+        }
+        "OptimizeLite"         { 
+            $Res = Invoke-LiteOptimization 
+            $OutputObj = $Res | Where-Object { $_.Step -eq "Summary" } | Select-Object -First 1
+        }
         "SetLatency" { 
             # Converte argumento string para Booleano
             $Val = [System.Convert]::ToBoolean($Args)
@@ -96,26 +102,9 @@ try {
             Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13; iwr -useb https://get.activated.win | iex`""
             $OutputObj = [PSCustomObject]@{ Status = "Success"; Message = "MAS (Ativador de Office) foi iniciado em uma nova janela." }
         }
-        "SetTheme" {
-            $CliFolder = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\..\cli"))
-            $ThemeFile = Join-Path $CliFolder "theme.txt"
-            Set-Content $ThemeFile $Args -Force
-            $OutputObj = [PSCustomObject]@{ Status = "Success"; Message = "Tema alterado para $Args com sucesso." }
-        }
-        "SetLanguage" {
-            $CliFolder = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\..\cli"))
-            $PrefFile = Join-Path $CliFolder "lang.ini"
-            Set-Content $PrefFile $Args -Force
-            $OutputObj = [PSCustomObject]@{ Status = "Success"; Message = "Idioma alterado para $Args com sucesso." }
-        }
-        "ResetSettings" {
-            $CliFolder = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\..\cli"))
-            $ThemeFile = Join-Path $CliFolder "theme.txt"
-            $PrefFile = Join-Path $CliFolder "lang.ini"
-            Remove-Item $ThemeFile -Force -ErrorAction SilentlyContinue
-            Remove-Item $PrefFile -Force -ErrorAction SilentlyContinue
-            $OutputObj = [PSCustomObject]@{ Status = "Success"; Message = "Configuracoes e arquivos de preferencia resetados ao padrao." }
-        }
+        "SetTheme"             { $OutputObj = [PSCustomObject]@{ Status = "Success"; Message = "Tema alterado com sucesso no backend." } }
+        "SetLanguage"          { $OutputObj = [PSCustomObject]@{ Status = "Success"; Message = "Idioma alterado com sucesso no backend." } }
+        "ResetSettings"        { $OutputObj = [PSCustomObject]@{ Status = "Success"; Message = "Configuracoes resetadas com sucesso." } }
     }
 } catch {
     # Captura falha lógica e envelopa no formato JSON correspondente

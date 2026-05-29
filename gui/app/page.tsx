@@ -22,20 +22,23 @@ import ExternalToolsModule from "../components/ExternalToolsModule";
 import SettingsModule from "../components/SettingsModule";
 import AboutModule from "../components/AboutModule";
 
+import { I18nProvider, useI18n } from "../lib/i18n";
+
 type Tab = "dashboard" | "clean" | "gamer" | "system" | "external" | "settings" | "about";
 
-export default function Page() {
+function PageContent() {
   const [activeTab, setActiveTab] = useState<Tab>("dashboard");
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
+  const { t } = useI18n();
 
   const menuItems = [
-    { id: "dashboard", label: "Performance", icon: Cpu, color: "text-primary" },
-    { id: "clean", label: "Limpeza de Disco", icon: Trash2, color: "text-orange-400" },
-    { id: "gamer", label: "Gamer Latency", icon: Gamepad2, color: "text-tertiary" },
-    { id: "system", label: "Sistema & Reparos", icon: SysIcon, color: "text-secondary" },
-    { id: "external", label: "Ferramentas", icon: Briefcase, color: "text-primary" },
-    { id: "settings", label: "Configurações", icon: Sliders, color: "text-blue-400" },
-    { id: "about", label: "Sobre o App", icon: Info, color: "text-zinc-400" }
+    { id: "dashboard", label: t("nav.performance"), icon: Cpu, color: "text-primary" },
+    { id: "clean", label: t("nav.cleanup"), icon: Trash2, color: "text-orange-400" },
+    { id: "gamer", label: t("nav.gamer"), icon: Gamepad2, color: "text-tertiary" },
+    { id: "system", label: t("nav.system"), icon: SysIcon, color: "text-secondary" },
+    { id: "external", label: t("nav.tools"), icon: Briefcase, color: "text-primary" },
+    { id: "settings", label: t("nav.settings"), icon: Sliders, color: "text-blue-400" },
+    { id: "about", label: t("nav.about"), icon: Info, color: "text-zinc-400" }
   ] as const;
 
   const renderModule = () => {
@@ -82,8 +85,8 @@ export default function Page() {
           <div className={`ml-4 transition-all duration-300 whitespace-nowrap ${
             sidebarExpanded ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 pointer-events-none"
           }`}>
-            <h1 className="font-bold text-primary tracking-tight leading-none text-sm">System Optimizer</h1>
-            <span className="text-[9px] font-bold text-zinc-500 tracking-wider uppercase block mt-1">Core Control Deck</span>
+            <h1 className="font-bold text-primary tracking-tight leading-none text-sm">{t("sidebar.title")}</h1>
+            <span className="text-[9px] font-bold text-zinc-500 tracking-wider uppercase block mt-1">{t("sidebar.subtitle")}</span>
           </div>
         </div>
 
@@ -125,7 +128,7 @@ export default function Page() {
         <div className="px-4 mt-auto shrink-0 flex items-center gap-3 text-[10px] font-semibold text-zinc-500">
           <Shield className="w-4 h-4 text-primary shrink-0" />
           <span className={`transition-opacity duration-300 whitespace-nowrap ${sidebarExpanded ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
-            Privilégios de Administrador
+            {t("sidebar.admin")}
           </span>
         </div>
       </aside>
@@ -140,7 +143,7 @@ export default function Page() {
           </h2>
           <div className="text-[10px] text-[#bcc9cd] font-semibold flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse" />
-            Tauri Connect Live
+            {t("header.connect")}
           </div>
         </header>
 
@@ -161,5 +164,13 @@ export default function Page() {
       </section>
 
     </main>
+  );
+}
+
+export default function Page() {
+  return (
+    <I18nProvider>
+      <PageContent />
+    </I18nProvider>
   );
 }
