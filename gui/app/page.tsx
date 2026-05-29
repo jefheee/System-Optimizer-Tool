@@ -10,7 +10,8 @@ import {
   Info,
   Shield,
   Key,
-  Sliders
+  Sliders,
+  ChevronRight
 } from "lucide-react";
 
 // Módulos
@@ -26,14 +27,15 @@ type Tab = "dashboard" | "clean" | "gamer" | "system" | "activator" | "settings"
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState<Tab>("dashboard");
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
 
   const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: Cpu, color: "text-cyan-400" },
+    { id: "dashboard", label: "Performance", icon: Cpu, color: "text-primary" },
     { id: "clean", label: "Limpeza de Disco", icon: Trash2, color: "text-orange-400" },
-    { id: "gamer", label: "Gamer Latency", icon: Gamepad2, color: "text-emerald-400" },
-    { id: "system", label: "Sistema & Reparos", icon: SysIcon, color: "text-purple-400" },
+    { id: "gamer", label: "Gamer Latency", icon: Gamepad2, color: "text-tertiary" },
+    { id: "system", label: "Sistema & Reparos", icon: SysIcon, color: "text-secondary" },
     { id: "activator", label: "Ativação (MAS)", icon: Key, color: "text-red-400" },
-    { id: "settings", label: "Configurações", icon: Sliders, color: "text-blue-400" },
+    { id: "settings", label: "Configurações", icon: Sliders, color: "text-primary" },
     { id: "about", label: "Sobre o App", icon: Info, color: "text-zinc-400" }
   ] as const;
 
@@ -57,76 +59,89 @@ export default function Page() {
   };
 
   return (
-    <main className="min-h-screen bg-black text-zinc-300 font-sans selection:bg-cyan-500/30 selection:text-cyan-200 flex relative overflow-hidden">
+    <main className="min-h-screen bg-[#050505] text-[#e5e2e1] font-sans selection:bg-primary/30 selection:text-primary flex relative overflow-hidden">
       
-      {/* Luzes decorativas de fundo (Aesthetics Glow Orbs) */}
-      <div className="absolute top-[-10%] left-[20%] w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-[130px] pointer-events-none -z-10 animate-pulse" />
-      <div className="absolute bottom-[-10%] right-[10%] w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-[130px] pointer-events-none -z-10" />
+      {/* Luzes decorativas de fundo (Neon Glow Orbs) */}
+      <div className="absolute top-[-10%] left-[20%] w-[600px] h-[600px] bg-primary/5 rounded-full blur-[140px] pointer-events-none -z-10 animate-pulse-soft" />
+      <div className="absolute bottom-[-10%] right-[10%] w-[600px] h-[600px] bg-secondary/5 rounded-full blur-[140px] pointer-events-none -z-10" />
 
-      {/* Sidebar Esquerda (Fixa) */}
-      <aside className="w-64 border-r border-zinc-900/80 bg-zinc-950/80 backdrop-blur-xl shrink-0 flex flex-col justify-between p-6 z-40">
-        <div className="space-y-8">
-          {/* Logo Header */}
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center text-white font-extrabold text-base shadow-lg shadow-cyan-500/20 shrink-0">
+      {/* Sidebar Esquerda (Fixa + Expansível) */}
+      <aside 
+        onMouseEnter={() => setSidebarExpanded(true)}
+        onMouseLeave={() => setSidebarExpanded(false)}
+        className={`fixed left-0 top-0 h-full bg-zinc-950/60 backdrop-blur-3xl border-r border-white/5 flex flex-col py-6 transition-all duration-300 z-50 overflow-hidden shadow-[0_0_30px_rgba(76,215,246,0.05)] ${
+          sidebarExpanded ? "w-64" : "w-[72px]"
+        }`}
+      >
+        {/* Header da Sidebar */}
+        <div className="px-4 mb-8 flex items-center shrink-0">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-secondary p-[1px] shrink-0 flex items-center justify-center shadow-lg shadow-primary/20">
+            <div className="w-full h-full rounded-full bg-[#050505] flex items-center justify-center text-primary font-black text-sm">
               S
             </div>
-            <div>
-              <h1 className="font-extrabold text-zinc-100 text-sm tracking-tight leading-none">System Optimizer</h1>
-              <span className="text-[9px] font-bold text-zinc-500 tracking-wider uppercase block mt-1">Web Control Panel</span>
-            </div>
           </div>
-
-          {/* Menu de Navegação */}
-          <nav className="space-y-1.5">
-            {menuItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-300 relative group ${
-                    isActive 
-                      ? "text-cyan-400 bg-cyan-500/10 border-l-2 border-cyan-500 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]" 
-                      : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50"
-                  }`}
-                >
-                  <Icon className={`w-4 h-4 transition-transform duration-350 group-hover:scale-110 shrink-0 ${isActive ? 'text-cyan-400' : 'text-zinc-500'}`} />
-                  {item.label}
-                  {isActive && (
-                    <motion.div 
-                      layoutId="sidebar-active-indicator" 
-                      className="absolute right-3 w-1.5 h-1.5 rounded-full bg-cyan-500 shadow-glow"
-                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                    />
-                  )}
-                </button>
-              );
-            })}
-          </nav>
+          <div className={`ml-4 transition-all duration-300 whitespace-nowrap ${
+            sidebarExpanded ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 pointer-events-none"
+          }`}>
+            <h1 className="font-bold text-primary tracking-tight leading-none text-sm">System Optimizer</h1>
+            <span className="text-[9px] font-bold text-zinc-500 tracking-wider uppercase block mt-1">Core Control Deck</span>
+          </div>
         </div>
 
+        {/* Menu de Navegação */}
+        <nav className="flex-1 flex flex-col gap-2 px-3">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`w-full flex items-center p-3 rounded-xl transition-all duration-200 relative group/btn hover:scale-[1.02] border-l-2 ${
+                  isActive 
+                    ? "text-primary border-primary bg-primary/10 shadow-[0_0_15px_rgba(76,215,246,0.1)]" 
+                    : "text-[#bcc9cd] hover:text-[#e5e2e1] hover:bg-white/5 border-transparent hover:border-white/10"
+                }`}
+              >
+                <Icon className={`w-4 h-4 shrink-0 transition-transform duration-300 group-hover/btn:scale-110 ${isActive ? 'text-primary' : 'text-zinc-500'}`} />
+                <span className={`ml-4 text-xs font-semibold tracking-wide transition-all duration-300 whitespace-nowrap ${
+                  sidebarExpanded ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 pointer-events-none"
+                }`}>
+                  {item.label}
+                </span>
+                
+                {isActive && sidebarExpanded && (
+                  <motion.div 
+                    layoutId="sidebar-active-indicator" 
+                    className="absolute right-3 w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_#4cd7f6]"
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  />
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
         {/* Footer da Sidebar */}
-        <div className="border-t border-zinc-900/80 pt-4 flex items-center gap-2 text-[10px] font-semibold text-zinc-500">
-          <Shield className="w-3.5 h-3.5 text-cyan-500" />
-          <span>Privilégios de Administrador</span>
+        <div className="px-4 mt-auto shrink-0 flex items-center gap-3 text-[10px] font-semibold text-zinc-500">
+          <Shield className="w-4 h-4 text-primary shrink-0" />
+          <span className={`transition-opacity duration-300 whitespace-nowrap ${sidebarExpanded ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+            Privilégios de Administrador
+          </span>
         </div>
       </aside>
 
-      {/* Área de Conteúdo Direita (Rolável) */}
-      <section className="flex-1 flex flex-col min-w-0 z-30">
+      {/* Área de Conteúdo Direita */}
+      <section className="flex-1 flex flex-col min-w-0 pl-[72px]">
         
         {/* Top Header Barra */}
-        <header className="h-16 border-b border-zinc-900/80 backdrop-blur-md bg-black/40 flex items-center justify-between px-8">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] bg-zinc-900 border border-zinc-800 text-zinc-400 px-3 py-1 rounded-full flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              Tauri Webview Connect
-            </span>
-          </div>
-          <div className="text-[10px] text-zinc-500 font-medium">
-            System Optimizer v2.1.0 (64-bit)
+        <header className="h-16 border-b border-white/5 bg-transparent backdrop-blur-md flex justify-between items-center px-8 z-40 transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(76,215,246,0.05)]">
+          <h2 className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary text-sm md:text-base">
+            System Optimizer &bull; Control Panel
+          </h2>
+          <div className="text-[10px] text-[#bcc9cd] font-semibold flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse" />
+            Tauri Connect Live
           </div>
         </header>
 

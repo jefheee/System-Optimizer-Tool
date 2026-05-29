@@ -43,126 +43,68 @@ export default function DashboardModule() {
     loadDiagnostics();
   }, []);
 
-  const cpuCard = diagnostics?.Cpu && (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.1 }}
-      className="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-xl shadow-xl flex items-start gap-4 hover:border-cyan-500/30 transition-all duration-300 group"
-    >
-      <div className="p-3 bg-cyan-500/10 rounded-xl text-cyan-400 group-hover:bg-cyan-500/20 transition-colors">
-        <Cpu className="w-6 h-6" />
-      </div>
-      <div>
-        <p className="text-xs font-semibold text-zinc-500 tracking-wider uppercase">Processador (CPU)</p>
-        <h3 className="text-lg font-bold text-zinc-200 mt-1 leading-snug">{diagnostics.Cpu.Name}</h3>
-      </div>
-    </motion.div>
-  );
-
-  const gpuCard = diagnostics?.Gpu && (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.2 }}
-      className="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-xl shadow-xl flex items-start gap-4 hover:border-purple-500/30 transition-all duration-300 group"
-    >
-      <div className="p-3 bg-purple-500/10 rounded-xl text-purple-400 group-hover:bg-purple-500/20 transition-colors">
-        <Activity className="w-6 h-6" />
-      </div>
-      <div>
-        <p className="text-xs font-semibold text-zinc-500 tracking-wider uppercase">Placa de Video (GPU)</p>
-        <h3 className="text-lg font-bold text-zinc-200 mt-1 leading-snug">{diagnostics.Gpu.Name}</h3>
-      </div>
-    </motion.div>
-  );
-
-  const ramCard = diagnostics?.Memory && (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.3 }}
-      className="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-xl shadow-xl flex items-start gap-4 hover:border-emerald-500/30 transition-all duration-300 group"
-    >
-      <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-400 group-hover:bg-emerald-500/20 transition-colors">
-        <RamIcon className="w-6 h-6" />
-      </div>
-      <div className="w-full">
-        <p className="text-xs font-semibold text-zinc-500 tracking-wider uppercase">Memoria RAM</p>
-        <h3 className="text-lg font-bold text-zinc-200 mt-1">{diagnostics.Memory.TotalGB} GB Instalados</h3>
-        <div className="mt-2 flex gap-2 flex-wrap">
-          {diagnostics.Memory.Modules.map((mod, i) => (
-            <span key={i} className="text-[10px] font-medium bg-zinc-800/90 border border-zinc-700/60 text-zinc-400 px-2 py-0.5 rounded-full">
-              Slot {i + 1}: {mod.CapacityGB}GB {mod.SpeedMHz}MHz
-            </span>
-          ))}
-        </div>
-      </div>
-    </motion.div>
-  );
-
-  const uptimeCard = diagnostics?.OperatingSystem && (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.4 }}
-      className="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-xl shadow-xl flex items-start gap-4 hover:border-amber-500/30 transition-all duration-300 group"
-    >
-      <div className="p-3 bg-amber-500/10 rounded-xl text-amber-400 group-hover:bg-amber-500/20 transition-colors">
-        <Clock className="w-6 h-6" />
-      </div>
-      <div>
-        <p className="text-xs font-semibold text-zinc-500 tracking-wider uppercase">Tempo de Atividade (Uptime)</p>
-        <h3 className="text-lg font-bold text-zinc-200 mt-1">
-          {diagnostics.OperatingSystem.Uptime.Days}d {diagnostics.OperatingSystem.Uptime.Hours}h {diagnostics.OperatingSystem.Uptime.Minutes}m
-        </h3>
-        <p className="text-xs text-zinc-500 mt-1 leading-snug">
-          SO: {diagnostics.OperatingSystem.Caption}
-        </p>
-      </div>
-    </motion.div>
-  );
-
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-extrabold text-zinc-100 tracking-tight flex items-center gap-2">
-          <Activity className="w-5 h-5 text-cyan-400" />
-          Diagnostico de Hardware
-        </h2>
+    <div className="space-y-8 animate-card-entry">
+      
+      {/* Hero Header Section */}
+      <section className="glass-card rounded-2xl p-8 relative overflow-hidden min-h-[220px] flex flex-col justify-end">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 z-0 pointer-events-none" />
+        <div className="absolute inset-0 flex items-center justify-center z-0 opacity-80 pointer-events-none">
+          <div className="w-64 h-64 rounded-full bg-gradient-to-tr from-primary to-secondary blur-[85px] animate-pulse-soft opacity-30" />
+        </div>
         
-        <button 
-          onClick={loadDiagnostics}
-          disabled={loading}
-          className="p-2 rounded-xl border border-zinc-850 hover:border-zinc-700 bg-zinc-900/50 hover:bg-zinc-800/50 transition-all flex items-center justify-center text-zinc-400 hover:text-zinc-200 disabled:opacity-50 group"
-        >
-          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} />
-          <span className="text-xs ml-2 font-medium">Recarregar</span>
-        </button>
-      </div>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <h3 className="text-2xl font-bold font-headline-lg tracking-tight mb-2">Performance Core</h3>
+            <p className="text-xs text-on-surface-variant">Análise de hardware em tempo real ativa.</p>
+          </div>
+          <div className="flex gap-8 md:text-right">
+            <div>
+              <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-1">Status Geral</p>
+              <div className="flex items-center gap-2 text-tertiary">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-tertiary"></span>
+                </span>
+                <span className="font-semibold text-sm">Otimizado</span>
+              </div>
+            </div>
+            
+            <button 
+              onClick={loadDiagnostics}
+              disabled={loading}
+              className="p-2.5 rounded-lg border border-white/10 hover:border-white/20 bg-zinc-950/60 transition-all flex items-center gap-2 text-xs font-semibold text-zinc-300"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+              Recarregar
+            </button>
+          </div>
+        </div>
+      </section>
 
+      {/* Diagnostics Grid */}
       <AnimatePresence mode="wait">
         {loading && !diagnostics ? (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="py-20 flex flex-col items-center justify-center gap-4 bg-zinc-900/20 rounded-2xl border border-zinc-900"
+            className="py-20 flex flex-col items-center justify-center gap-4 glass-card rounded-2xl"
           >
-            <RefreshCw className="w-8 h-8 text-cyan-500 animate-spin" />
-            <p className="text-sm font-medium text-zinc-500">Buscando dados de diagnostico via PowerShell...</p>
+            <RefreshCw className="w-8 h-8 text-primary animate-spin" />
+            <p className="text-xs font-semibold text-on-surface-variant">Consultando WMI/PowerShell...</p>
           </motion.div>
         ) : error ? (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="p-6 rounded-2xl bg-red-950/20 border border-red-900/60 backdrop-blur-md flex gap-4 text-red-400"
+            className="p-6 rounded-2xl bg-error-container/20 border border-error/20 flex gap-4 text-error"
           >
             <AlertTriangle className="w-6 h-6 shrink-0" />
             <div>
-              <h4 className="font-bold text-zinc-100">Erro de Execucao</h4>
-              <p className="text-sm mt-1 leading-snug">{error}</p>
+              <h4 className="font-bold text-zinc-100 text-sm">Falha de Integração</h4>
+              <p className="text-xs mt-1 leading-snug">{error}</p>
             </div>
           </motion.div>
         ) : (
@@ -172,48 +114,122 @@ export default function DashboardModule() {
             exit={{ opacity: 0 }}
             className="grid grid-cols-1 md:grid-cols-2 gap-6"
           >
-            {cpuCard}
-            {gpuCard}
-            {ramCard}
-            {uptimeCard}
+            {/* CPU Card */}
+            {diagnostics?.Cpu && (
+              <div className="glass-card rounded-xl p-6 bg-gradient-top relative group hover:border-primary/30 transition-all duration-300">
+                <div className="flex justify-between items-start mb-6">
+                  <div className="flex items-center gap-3">
+                    <span className="p-2 bg-primary/10 rounded-lg text-primary">
+                      <Cpu className="w-4 h-4" />
+                    </span>
+                    <h4 className="font-bold text-zinc-200 text-sm">Processador</h4>
+                  </div>
+                </div>
+                <h3 className="text-base font-bold text-zinc-150 leading-tight mb-4">{diagnostics.Cpu.Name}</h3>
+                <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Apenas núcleos físicos ativos mapeados</p>
+              </div>
+            )}
+
+            {/* GPU Card */}
+            {diagnostics?.Gpu && (
+              <div className="glass-card rounded-xl p-6 bg-gradient-top relative group hover:border-secondary/30 transition-all duration-300">
+                <div className="flex justify-between items-start mb-6">
+                  <div className="flex items-center gap-3">
+                    <span className="p-2 bg-secondary/10 rounded-lg text-secondary">
+                      <Activity className="w-4 h-4" />
+                    </span>
+                    <h4 className="font-bold text-zinc-200 text-sm">Placa Gráfica</h4>
+                  </div>
+                </div>
+                <h3 className="text-base font-bold text-zinc-150 leading-tight mb-4">{diagnostics.Gpu.Name}</h3>
+                <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Interface gráfica e aceleração por hardware</p>
+              </div>
+            )}
+
+            {/* RAM Card */}
+            {diagnostics?.Memory && (
+              <div className="glass-card rounded-xl p-6 bg-gradient-top relative group hover:border-tertiary/30 transition-all duration-300">
+                <div className="flex justify-between items-start mb-6">
+                  <div className="flex items-center gap-3">
+                    <span className="p-2 bg-tertiary/10 rounded-lg text-tertiary">
+                      <RamIcon className="w-4 h-4" />
+                    </span>
+                    <h4 className="font-bold text-zinc-200 text-sm">Memória RAM</h4>
+                  </div>
+                  <span className="text-xs font-bold text-tertiary">{diagnostics.Memory.TotalGB} GB</span>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex gap-2 flex-wrap">
+                    {diagnostics.Memory.Modules.map((mod, i) => (
+                      <span key={i} className="text-[9px] font-semibold bg-zinc-950/60 border border-white/5 text-[#bcc9cd] px-2 py-0.5 rounded">
+                        Slot {i + 1}: {mod.CapacityGB}GB {mod.SpeedMHz}MHz
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* OS Uptime Card */}
+            {diagnostics?.OperatingSystem && (
+              <div className="glass-card rounded-xl p-6 bg-gradient-top relative group hover:border-zinc-700/30 transition-all duration-300">
+                <div className="flex justify-between items-start mb-6">
+                  <div className="flex items-center gap-3">
+                    <span className="p-2 bg-zinc-800 rounded-lg text-zinc-400">
+                      <Clock className="w-4 h-4" />
+                    </span>
+                    <h4 className="font-bold text-zinc-200 text-sm">Tempo de Atividade</h4>
+                  </div>
+                  <span className="text-xs font-semibold text-zinc-400">Uptime</span>
+                </div>
+                <h3 className="text-base font-bold text-zinc-150 leading-tight">
+                  {diagnostics.OperatingSystem.Uptime.Days}d {diagnostics.OperatingSystem.Uptime.Hours}h {diagnostics.OperatingSystem.Uptime.Minutes}m
+                </h3>
+                <p className="text-[10px] text-on-surface-variant mt-2 truncate">
+                  SO: {diagnostics.OperatingSystem.Caption}
+                </p>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Cards de Discos */}
+      {/* Armazenamento */}
       {diagnostics && diagnostics.Storage.length > 0 && (
         <div className="space-y-4">
-          <h3 className="text-sm font-extrabold text-zinc-400 tracking-wider uppercase">Unidades de Armazenamento</h3>
+          <h4 className="text-[10px] font-bold text-on-surface-variant tracking-wider uppercase">Unidades de Armazenamento</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {diagnostics.Storage.map((disk, idx) => (
-              <motion.div 
+              <div 
                 key={idx}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: idx * 0.05 }}
-                className="p-5 rounded-2xl bg-zinc-900/40 border border-zinc-800/60 backdrop-blur-xl flex items-center justify-between"
+                className="p-5 rounded-xl glass-card flex items-center justify-between"
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-zinc-800 rounded-xl text-zinc-400">
-                    <HardDrive className="w-5 h-5" />
-                  </div>
+                  <span className="p-2.5 bg-zinc-950 rounded-lg text-zinc-500">
+                    <HardDrive className="w-4 h-4" />
+                  </span>
                   <div>
-                    <h4 className="font-bold text-sm text-zinc-200 leading-snug">{disk.Model}</h4>
-                    <p className="text-xs text-zinc-500 mt-0.5">{disk.MediaType} &bull; {disk.SizeGB} GB</p>
+                    <h5 className="font-bold text-xs text-zinc-200 leading-snug">{disk.Model}</h5>
+                    <p className="text-[10px] text-on-surface-variant mt-0.5">{disk.MediaType} &bull; {disk.SizeGB} GB</p>
                   </div>
                 </div>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
+                <span className={`text-[9px] font-bold px-2 py-0.5 rounded border flex items-center gap-1.5 ${
                   disk.HealthStatus === 'Healthy' 
-                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
-                    : 'bg-red-500/10 border-red-500/30 text-red-400'
+                    ? 'bg-tertiary/10 border-tertiary/20 text-tertiary' 
+                    : 'bg-red-500/10 border-red-500/20 text-red-400'
                 }`}>
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-current opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-current"></span>
+                  </span>
                   {disk.HealthStatus}
                 </span>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
       )}
+
     </div>
   );
 }

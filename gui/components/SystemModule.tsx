@@ -15,8 +15,7 @@ import {
   CheckCircle2, 
   XCircle,
   AlertCircle,
-  Terminal,
-  Cpu
+  Terminal
 } from "lucide-react";
 
 export default function SystemModule() {
@@ -39,13 +38,13 @@ export default function SystemModule() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-card-entry">
       <div>
-        <h2 className="text-xl font-extrabold text-zinc-100 tracking-tight flex items-center gap-2">
-          <Settings className="w-5 h-5 text-purple-400" />
+        <h2 className="text-xl font-bold font-headline-lg text-zinc-100 tracking-tight flex items-center gap-2">
+          <Settings className="w-5 h-5 text-secondary" />
           Manutenção & Reparações do Sistema
         </h2>
-        <p className="text-xs text-zinc-500 mt-1">
+        <p className="text-xs text-on-surface-variant mt-1">
           Restaure a integridade dos arquivos do Windows, reconfigure conexões de rede e acione utilitários de terceiros.
         </p>
       </div>
@@ -53,23 +52,23 @@ export default function SystemModule() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         {/* WinUtil (Chris Titus) */}
-        <div className="p-5 rounded-2xl bg-zinc-900/40 border border-zinc-800/60 backdrop-blur-xl flex flex-col justify-between hover:border-purple-500/20 transition-all duration-300">
+        <div className="p-6 rounded-xl glass-card flex flex-col justify-between hover:border-secondary/20 transition-all duration-300">
           <div className="flex items-start gap-4">
-            <div className="p-3 bg-blue-500/10 rounded-xl text-blue-400">
+            <div className="p-3 bg-[#06b6d4]/10 rounded-lg text-[#06b6d4]">
               <Terminal className="w-5 h-5" />
             </div>
             <div>
               <h4 className="font-bold text-zinc-200 text-sm">WinUtil (Chris Titus)</h4>
-              <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
+              <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">
                 Abre o utilitário completo de debloat e instalação de pacotes do Chris Titus Tech em uma janela externa com privilégios de administrador.
               </p>
             </div>
           </div>
-          <div className="mt-6 border-t border-zinc-800/50 pt-4 flex justify-end">
+          <div className="mt-6 border-t border-white/5 pt-4 flex justify-end">
             <button
               onClick={() => runAction("winutil", "RunWinUtil")}
               disabled={activeActions["winutil"]}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-750 text-xs font-bold text-zinc-200 transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-secondary hover:shadow-[0_0_15px_rgba(76,215,246,0.4)] text-zinc-950 text-xs font-bold transition-all hover:scale-105"
             >
               {activeActions["winutil"] ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -81,23 +80,23 @@ export default function SystemModule() {
         </div>
 
         {/* Otimizar DNS (OptimizeDns) */}
-        <div className="p-5 rounded-2xl bg-zinc-900/40 border border-zinc-800/60 backdrop-blur-xl flex flex-col justify-between hover:border-purple-500/20 transition-all duration-300">
+        <div className="p-6 rounded-xl glass-card flex flex-col justify-between hover:border-secondary/20 transition-all duration-300">
           <div className="flex items-start gap-4">
-            <div className="p-3 bg-cyan-500/10 rounded-xl text-cyan-400">
+            <div className="p-3 bg-primary/10 rounded-lg text-primary">
               <Wifi className="w-5 h-5" />
             </div>
             <div>
               <h4 className="font-bold text-zinc-200 text-sm">Otimizar Latência de DNS</h4>
-              <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
+              <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">
                 Testa a latência em tempo real dos servidores do Google e Cloudflare, aplicando automaticamente o de menor ping à interface ativa.
               </p>
             </div>
           </div>
-          <div className="mt-6 border-t border-zinc-800/50 pt-4 flex justify-end">
+          <div className="mt-6 border-t border-white/5 pt-4 flex justify-end">
             <button
               onClick={() => runAction("dns", "OptimizeDns")}
               disabled={activeActions["dns"]}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-750 text-xs font-bold text-zinc-200 transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-755 text-xs font-bold text-zinc-200 transition-all hover:scale-105"
             >
               {activeActions["dns"] ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -109,23 +108,23 @@ export default function SystemModule() {
         </div>
 
         {/* Desativar Telemetria (DisableTelemetry) */}
-        <div className="p-5 rounded-2xl bg-zinc-900/40 border border-zinc-800/60 backdrop-blur-xl flex flex-col justify-between hover:border-purple-500/20 transition-all duration-300">
+        <div className="p-6 rounded-xl glass-card flex flex-col justify-between hover:border-secondary/20 transition-all duration-300">
           <div className="flex items-start gap-4">
-            <div className="p-3 bg-red-500/10 rounded-xl text-red-400">
+            <div className="p-3 bg-red-500/10 rounded-lg text-red-400">
               <ShieldAlert className="w-5 h-5" />
             </div>
             <div>
               <h4 className="font-bold text-zinc-200 text-sm">Desativar Telemetria & Rastreamento</h4>
-              <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
+              <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">
                 Interrompe serviços nativos de feedback (DiagTrack, dmwappushservice) e injeta políticas de privacidade para mitigar o uso de CPU.
               </p>
             </div>
           </div>
-          <div className="mt-6 border-t border-zinc-800/50 pt-4 flex justify-end">
+          <div className="mt-6 border-t border-white/5 pt-4 flex justify-end">
             <button
               onClick={() => runAction("telemetry", "DisableTelemetry")}
               disabled={activeActions["telemetry"]}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-750 text-xs font-bold text-zinc-200 transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-755 text-xs font-bold text-zinc-200 transition-all hover:scale-105"
             >
               {activeActions["telemetry"] ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -137,23 +136,23 @@ export default function SystemModule() {
         </div>
 
         {/* Remover Bloatware (RemoveBloatware) */}
-        <div className="p-5 rounded-2xl bg-zinc-900/40 border border-zinc-800/60 backdrop-blur-xl flex flex-col justify-between hover:border-purple-500/20 transition-all duration-300">
+        <div className="p-6 rounded-xl glass-card flex flex-col justify-between hover:border-secondary/20 transition-all duration-300">
           <div className="flex items-start gap-4">
-            <div className="p-3 bg-purple-500/10 rounded-xl text-purple-400">
+            <div className="p-3 bg-[#d0bcff]/10 rounded-lg text-secondary">
               <Trash2 className="w-5 h-5" />
             </div>
             <div>
               <h4 className="font-bold text-zinc-200 text-sm">Remover Bloatware do Windows</h4>
-              <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
+              <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">
                 Desinstala aplicativos embutidos indesejados (Xbox Overlay, YourPhone, Cortana, etc.) que rodam silenciosamente.
               </p>
             </div>
           </div>
-          <div className="mt-6 border-t border-zinc-800/50 pt-4 flex justify-end">
+          <div className="mt-6 border-t border-white/5 pt-4 flex justify-end">
             <button
               onClick={() => runAction("bloatware", "RemoveBloatware")}
               disabled={activeActions["bloatware"]}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-750 text-xs font-bold text-zinc-200 transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-755 text-xs font-bold text-zinc-200 transition-all hover:scale-105"
             >
               {activeActions["bloatware"] ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -165,23 +164,23 @@ export default function SystemModule() {
         </div>
 
         {/* Limpar Tarefas Órfãs (RemoveOrphans) */}
-        <div className="p-5 rounded-2xl bg-zinc-900/40 border border-zinc-800/60 backdrop-blur-xl flex flex-col justify-between hover:border-purple-500/20 transition-all duration-300">
+        <div className="p-6 rounded-xl glass-card flex flex-col justify-between hover:border-secondary/20 transition-all duration-300">
           <div className="flex items-start gap-4">
-            <div className="p-3 bg-amber-500/10 rounded-xl text-amber-400">
+            <div className="p-3 bg-amber-500/10 rounded-lg text-amber-400">
               <Trash2 className="w-5 h-5" />
             </div>
             <div>
               <h4 className="font-bold text-zinc-200 text-sm">Limpar Tarefas Órfãs</h4>
-              <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
+              <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">
                 Examina o Agendador de Tarefas do Windows e apaga registros obsoletos ou órfãos de aplicativos já excluídos.
               </p>
             </div>
           </div>
-          <div className="mt-6 border-t border-zinc-800/50 pt-4 flex justify-end">
+          <div className="mt-6 border-t border-white/5 pt-4 flex justify-end">
             <button
               onClick={() => runAction("orphans", "RemoveOrphans")}
               disabled={activeActions["orphans"]}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-750 text-xs font-bold text-zinc-200 transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-755 text-xs font-bold text-zinc-200 transition-all hover:scale-105"
             >
               {activeActions["orphans"] ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -193,23 +192,23 @@ export default function SystemModule() {
         </div>
 
         {/* Reparar Windows Update (RepairWindowsUpdate) */}
-        <div className="p-5 rounded-2xl bg-zinc-900/40 border border-zinc-800/60 backdrop-blur-xl flex flex-col justify-between hover:border-purple-500/20 transition-all duration-300">
+        <div className="p-6 rounded-xl glass-card flex flex-col justify-between hover:border-secondary/20 transition-all duration-300">
           <div className="flex items-start gap-4">
-            <div className="p-3 bg-yellow-500/10 rounded-xl text-yellow-500">
+            <div className="p-3 bg-yellow-500/10 rounded-lg text-yellow-500">
               <RefreshCw className="w-5 h-5" />
             </div>
             <div>
               <h4 className="font-bold text-zinc-200 text-sm">Reparar Serviços Windows Update</h4>
-              <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
+              <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">
                 Para o wuauserv/bits, limpa o diretório de distribuição temporário do Windows e força o reinício limpo dos serviços.
               </p>
             </div>
           </div>
-          <div className="mt-6 border-t border-zinc-800/50 pt-4 flex justify-end">
+          <div className="mt-6 border-t border-white/5 pt-4 flex justify-end">
             <button
               onClick={() => runAction("wupdate", "RepairWindowsUpdate")}
               disabled={activeActions["wupdate"]}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-750 text-xs font-bold text-zinc-200 transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-755 text-xs font-bold text-zinc-200 transition-all hover:scale-105"
             >
               {activeActions["wupdate"] ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -221,23 +220,23 @@ export default function SystemModule() {
         </div>
 
         {/* Integridade do Sistema - SFC (SystemScan) */}
-        <div className="p-5 rounded-2xl bg-zinc-900/40 border border-zinc-800/60 backdrop-blur-xl flex flex-col justify-between hover:border-purple-500/20 transition-all duration-300">
+        <div className="p-6 rounded-xl glass-card flex flex-col justify-between hover:border-secondary/20 transition-all duration-300">
           <div className="flex items-start gap-4">
-            <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-400">
+            <div className="p-3 bg-emerald-500/10 rounded-lg text-emerald-400">
               <Search className="w-5 h-5" />
             </div>
             <div>
               <h4 className="font-bold text-zinc-200 text-sm">Verificador de Arquivos SFC</h4>
-              <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
+              <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">
                 Executa o utilitário nativo SFC /scannow de forma assíncrona para buscar e reparar arquivos de sistema corrompidos.
               </p>
             </div>
           </div>
-          <div className="mt-6 border-t border-zinc-800/50 pt-4 flex justify-end">
+          <div className="mt-6 border-t border-white/5 pt-4 flex justify-end">
             <button
               onClick={() => runAction("scan", "SystemScan")}
               disabled={activeActions["scan"]}
-              className="flex-1 max-w-[200px] py-2 rounded-xl bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-750 text-xs font-bold text-zinc-250 transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-755 text-xs font-bold text-zinc-200 transition-all hover:scale-105"
             >
               {activeActions["scan"] ? (
                 <span className="flex items-center justify-center gap-1.5">
@@ -252,30 +251,30 @@ export default function SystemModule() {
         </div>
 
         {/* Ferramentas Avançadas: Tomar Posse & Backup Drivers */}
-        <div className="p-5 rounded-2xl bg-zinc-900/40 border border-zinc-800/60 backdrop-blur-xl hover:border-purple-500/20 transition-all duration-300 flex flex-col justify-between">
+        <div className="p-6 rounded-xl glass-card hover:border-secondary/20 transition-all duration-300 flex flex-col justify-between">
           <div className="flex items-start gap-4">
-            <div className="p-3 bg-indigo-500/10 rounded-xl text-indigo-400">
+            <div className="p-3 bg-indigo-500/10 rounded-lg text-indigo-400">
               <FileText className="w-5 h-5" />
             </div>
             <div>
               <h4 className="font-bold text-zinc-200 text-sm">Ferramentas Avançadas</h4>
-              <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
+              <p className="text-xs text-on-surface-variant mt-1 leading-relaxed">
                 Adiciona o menu de contexto &quot;Tomar Posse&quot; para arquivos/pastas ou realiza o backup completo de drivers instalados em C:\Backup_Drivers.
               </p>
             </div>
           </div>
-          <div className="flex gap-3 pt-4 border-t border-zinc-800/50 mt-6">
+          <div className="flex gap-3 pt-4 border-t border-white/5 mt-6">
             <button
               onClick={() => runAction("ownership", "SetTakeOwnership")}
               disabled={activeActions["ownership"]}
-              className="flex-1 py-2 rounded-xl bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-750 text-xs font-bold transition-all flex items-center justify-center gap-1.5 text-zinc-300"
+              className="flex-1 py-2 rounded-lg bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-750 text-xs font-bold transition-all hover:scale-105 flex items-center justify-center gap-1.5 text-zinc-300"
             >
               {activeActions["ownership"] ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Tomar Posse"}
             </button>
             <button
               onClick={() => runAction("backup", "BackupDrivers")}
               disabled={activeActions["backup"]}
-              className="flex-1 py-2 rounded-xl bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-750 text-xs font-bold transition-all flex items-center justify-center gap-1.5 text-zinc-300"
+              className="flex-1 py-2 rounded-lg bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-750 text-xs font-bold transition-all hover:scale-105 flex items-center justify-center gap-1.5 text-zinc-300"
             >
               {activeActions["backup"] ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Backup Drivers"}
             </button>
@@ -288,7 +287,7 @@ export default function SystemModule() {
       <AnimatePresence>
         {Object.keys(results).length > 0 && (
           <div className="mt-8 space-y-3">
-            <h3 className="text-xs font-bold text-zinc-400 tracking-wider uppercase flex items-center justify-between">
+            <h3 className="text-xs font-bold text-on-surface-variant tracking-wider uppercase flex items-center justify-between">
               <span>Relatório de Ações do Sistema</span>
               <button 
                 onClick={() => setResults({})}
@@ -306,10 +305,10 @@ export default function SystemModule() {
                   exit={{ opacity: 0, y: -10 }}
                   className={`p-4 rounded-xl border flex gap-3 text-xs ${
                     value.Status === "Success"
-                      ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                      ? "bg-tertiary/10 border-tertiary/20 text-tertiary"
                       : value.Status === "Warning"
                       ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
-                      : "bg-red-500/10 border-red-500/20 text-red-400"
+                      : "bg-red-500/10 border-red-500/20 text-red-450"
                   }`}
                 >
                   {value.Status === "Success" ? (
@@ -320,8 +319,8 @@ export default function SystemModule() {
                     <XCircle className="w-4 h-4 shrink-0 mt-0.5" />
                   )}
                   <div>
-                    <span className="font-extrabold capitalize text-zinc-200 block">{key}: {value.Status}</span>
-                    <span className="text-zinc-400 mt-1 block">{value.Message}</span>
+                    <span className="font-bold capitalize text-zinc-200 block">{key}: {value.Status}</span>
+                    <span className="text-zinc-450 mt-1 block">{value.Message}</span>
                     {value.BestDNS && (
                       <span className="text-[10px] text-cyan-400 font-semibold block mt-1">
                         Melhor servidor encontrado: {value.BestDNS}
@@ -335,7 +334,7 @@ export default function SystemModule() {
                     {value.RemovedApps && value.RemovedApps.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-1">
                         {value.RemovedApps.map((app, idx) => (
-                          <span key={idx} className="text-[9px] bg-zinc-950/60 border border-zinc-800 text-zinc-500 px-1.5 py-0.5 rounded">
+                          <span key={idx} className="text-[9px] bg-zinc-950/60 border border-white/5 text-zinc-500 px-1.5 py-0.5 rounded">
                             {app}
                           </span>
                         ))}
