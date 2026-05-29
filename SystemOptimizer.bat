@@ -22,12 +22,12 @@ if %errorLevel% == 0 (
 :run
 cls
 :: Verifica se o arquivo principal existe antes de tentar abrir
-if exist "%~dp0OptimizerCore.ps1" (
-    powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0OptimizerCore.ps1"
+if exist "%~dp0Optimizer.ps1" (
+    powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0Optimizer.ps1"
 ) else (
     color 0C
-    echo [ERRO] O arquivo 'OptimizerCore.ps1' nao foi encontrado na mesma pasta!
-    echo Verifique se voce renomeou o arquivo antigo para 'OptimizerCore.ps1'.
+    echo [ERRO] O arquivo 'Optimizer.ps1' nao foi encontrado na mesma pasta!
+    echo Verifique se os arquivos modularizados sob a pasta 'src' e 'Optimizer.ps1' estao no diretorio.
     pause
 )
 exit
