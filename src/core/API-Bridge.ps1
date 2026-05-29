@@ -10,7 +10,8 @@ param(
         "SetGameDVR", "SetMouse", "SetKeyboard", "SetNetwork", "SetRamClean",
         "SetDefenderExclusion", "ResetDirectX", "RepairWindowsUpdate", "OptimizeDns",
         "SystemScan", "RemoveOrphans", "RemoveBloatware", "DisableTelemetry",
-        "SetTakeOwnership", "BackupDrivers"
+        "SetTakeOwnership", "BackupDrivers", "RunWinUtil", "ActivateWindows",
+        "ActivateOffice", "SetTheme", "SetLanguage", "ResetSettings"
     )]
     [string]$Action,
 
@@ -38,13 +39,14 @@ $BackendModules = @(
 )
 
 foreach ($Module in $BackendModules) {
-    $FullPath = Join-Path $ScriptPath $Module
+    $Combined = Join-Path $ScriptPath $Module
+    $FullPath = [System.IO.Path]::GetFullPath($Combined)
     if (Test-Path $FullPath) {
         . $FullPath
     } else {
         $ErrorObj = [PSCustomObject]@{
             Status  = "Error"
-            Message = "Falha ao carregar dependecia critica de backend na Bridge: $Module"
+            Message = "Falha ao carregar dependecia critica de backend na Bridge: $Module ($FullPath)"
         }
         $ErrorObj | ConvertTo-Json -Depth 10 -Compress
         exit 1
@@ -79,6 +81,37 @@ try {
         "DisableTelemetry"     { $OutputObj = Disable-Telemetry }
         "SetTakeOwnership"     { $OutputObj = Set-TakeOwnership }
         "BackupDrivers"        { $OutputObj = Backup-Drivers }
+        
+        # Novas Ações Mapeadas (Fase 9)
+        "RunWinUtil" {
+            Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13; iwr -useb https://christitus.com/win | iex`""
+            $OutputObj = [PSCustomObject]@{ Status = "Success"; Message = "WinUtil (Chris Titus) foi iniciado em uma nova janela de administrador." }
+        }
+        "ActivateWindows" {
+            Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13; iwr -useb https://get.activated.win | iex`""
+            $OutputObj = [PSCustomObject]@{ Status = "Success"; Message = "MAS (Ativador de Windows HWID) foi iniciado em uma nova janela." }
+        }
+        "ActivateOffice" {
+            Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13; iwr -useb https://get.activated.win | iex`""
+            $OutputObj = [PSCustomObject]@{ Status = "Success"; Message = "MAS (Ativador de Office) foi iniciado em uma nova janela." }
+        }
+        "SetTheme" {
+            $ThemeFile = Join-Path $ScriptPath "theme.txt"
+            Set-Content $ThemeFile $Args -Force
+            $OutputObj = [PSCustomObject]@{ Status = "Success"; Message = "Tema alterado para $Args com sucesso." }
+        }
+        "SetLanguage" {
+            $PrefFile = Join-Path $ScriptPath "lang.ini"
+            Set-Content $PrefFile $Args -Force
+            $OutputObj = [PSCustomObject]@{ Status = "Success"; Message = "Idioma alterado para $Args com sucesso." }
+        }
+        "ResetSettings" {
+            $ThemeFile = Join-Path $ScriptPath "theme.txt"
+            $PrefFile = Join-Path $ScriptPath "lang.ini"
+            Remove-Item $ThemeFile -Force -ErrorAction SilentlyContinue
+            Remove-Item $PrefFile -Force -ErrorAction SilentlyContinue
+            $OutputObj = [PSCustomObject]@{ Status = "Success"; Message = "Configuracoes e arquivos de preferencia resetados ao padrao." }
+        }
     }
 } catch {
     # Captura falha lógica e envelopa no formato JSON correspondente

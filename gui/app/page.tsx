@@ -6,10 +6,11 @@ import {
   Cpu, 
   Trash2, 
   Gamepad2, 
-  Settings, 
+  Settings as SysIcon, 
   Info,
   Shield,
-  Activity
+  Key,
+  Sliders
 } from "lucide-react";
 
 // Módulos
@@ -17,18 +18,22 @@ import DashboardModule from "../components/DashboardModule";
 import GamerModule from "../components/GamerModule";
 import SystemModule from "../components/SystemModule";
 import CleanModule from "../components/CleanModule";
+import ActivatorModule from "../components/ActivatorModule";
+import SettingsModule from "../components/SettingsModule";
 import AboutModule from "../components/AboutModule";
 
-type Tab = "dashboard" | "gamer" | "system" | "clean" | "about";
+type Tab = "dashboard" | "clean" | "gamer" | "system" | "activator" | "settings" | "about";
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState<Tab>("dashboard");
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: Cpu, color: "text-cyan-400" },
-    { id: "gamer", label: "Gamer Latency", icon: Gamepad2, color: "text-emerald-400" },
-    { id: "system", label: "Sistema & Reparos", icon: Settings, color: "text-purple-400" },
     { id: "clean", label: "Limpeza de Disco", icon: Trash2, color: "text-orange-400" },
+    { id: "gamer", label: "Gamer Latency", icon: Gamepad2, color: "text-emerald-400" },
+    { id: "system", label: "Sistema & Reparos", icon: SysIcon, color: "text-purple-400" },
+    { id: "activator", label: "Ativação (MAS)", icon: Key, color: "text-red-400" },
+    { id: "settings", label: "Configurações", icon: Sliders, color: "text-blue-400" },
     { id: "about", label: "Sobre o App", icon: Info, color: "text-zinc-400" }
   ] as const;
 
@@ -36,12 +41,16 @@ export default function Page() {
     switch (activeTab) {
       case "dashboard":
         return <DashboardModule />;
+      case "clean":
+        return <CleanModule />;
       case "gamer":
         return <GamerModule />;
       case "system":
         return <SystemModule />;
-      case "clean":
-        return <CleanModule />;
+      case "activator":
+        return <ActivatorModule />;
+      case "settings":
+        return <SettingsModule />;
       case "about":
         return <AboutModule />;
     }

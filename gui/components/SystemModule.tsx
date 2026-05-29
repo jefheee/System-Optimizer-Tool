@@ -11,11 +11,12 @@ import {
   ShieldAlert, 
   Trash2, 
   FileText, 
-  FolderDown, 
   Loader2, 
   CheckCircle2, 
   XCircle,
-  AlertCircle
+  AlertCircle,
+  Terminal,
+  Cpu
 } from "lucide-react";
 
 export default function SystemModule() {
@@ -45,12 +46,40 @@ export default function SystemModule() {
           Manutenção & Reparações do Sistema
         </h2>
         <p className="text-xs text-zinc-500 mt-1">
-          Restaure a integridade dos arquivos do Windows, reconfigure conexões de rede e remova rastreamentos indesejados.
+          Restaure a integridade dos arquivos do Windows, reconfigure conexões de rede e acione utilitários de terceiros.
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
+        {/* WinUtil (Chris Titus) */}
+        <div className="p-5 rounded-2xl bg-zinc-900/40 border border-zinc-800/60 backdrop-blur-xl flex flex-col justify-between hover:border-purple-500/20 transition-all duration-300">
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-blue-500/10 rounded-xl text-blue-400">
+              <Terminal className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-zinc-200 text-sm">WinUtil (Chris Titus)</h4>
+              <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
+                Abre o utilitário completo de debloat e instalação de pacotes do Chris Titus Tech em uma janela externa com privilégios de administrador.
+              </p>
+            </div>
+          </div>
+          <div className="mt-6 border-t border-zinc-800/50 pt-4 flex justify-end">
+            <button
+              onClick={() => runAction("winutil", "RunWinUtil")}
+              disabled={activeActions["winutil"]}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-750 text-xs font-bold text-zinc-200 transition-all"
+            >
+              {activeActions["winutil"] ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                "Abrir WinUtil"
+              )}
+            </button>
+          </div>
+        </div>
+
         {/* Otimizar DNS (OptimizeDns) */}
         <div className="p-5 rounded-2xl bg-zinc-900/40 border border-zinc-800/60 backdrop-blur-xl flex flex-col justify-between hover:border-purple-500/20 transition-all duration-300">
           <div className="flex items-start gap-4">
@@ -135,10 +164,38 @@ export default function SystemModule() {
           </div>
         </div>
 
-        {/* Reparar Windows Update (RepairWindowsUpdate) */}
+        {/* Limpar Tarefas Órfãs (RemoveOrphans) */}
         <div className="p-5 rounded-2xl bg-zinc-900/40 border border-zinc-800/60 backdrop-blur-xl flex flex-col justify-between hover:border-purple-500/20 transition-all duration-300">
           <div className="flex items-start gap-4">
             <div className="p-3 bg-amber-500/10 rounded-xl text-amber-400">
+              <Trash2 className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-zinc-200 text-sm">Limpar Tarefas Órfãs</h4>
+              <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
+                Examina o Agendador de Tarefas do Windows e apaga registros obsoletos ou órfãos de aplicativos já excluídos.
+              </p>
+            </div>
+          </div>
+          <div className="mt-6 border-t border-zinc-800/50 pt-4 flex justify-end">
+            <button
+              onClick={() => runAction("orphans", "RemoveOrphans")}
+              disabled={activeActions["orphans"]}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-750 text-xs font-bold text-zinc-200 transition-all"
+            >
+              {activeActions["orphans"] ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                "Limpar Tarefas Órfãs"
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Reparar Windows Update (RepairWindowsUpdate) */}
+        <div className="p-5 rounded-2xl bg-zinc-900/40 border border-zinc-800/60 backdrop-blur-xl flex flex-col justify-between hover:border-purple-500/20 transition-all duration-300">
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-yellow-500/10 rounded-xl text-yellow-500">
               <RefreshCw className="w-5 h-5" />
             </div>
             <div>
@@ -180,37 +237,40 @@ export default function SystemModule() {
             <button
               onClick={() => runAction("scan", "SystemScan")}
               disabled={activeActions["scan"]}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-750 text-xs font-bold text-zinc-200 transition-all"
+              className="flex-1 max-w-[200px] py-2 rounded-xl bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-750 text-xs font-bold text-zinc-250 transition-all"
             >
               {activeActions["scan"] ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span className="flex items-center justify-center gap-1.5">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Escaneando...
+                </span>
               ) : (
-                "Executar Varredura Completa"
+                "Varredura Completa"
               )}
             </button>
           </div>
         </div>
 
-        {/* Utilitários Extras: Tomar Posse & Backup Drivers (SetTakeOwnership, BackupDrivers) */}
-        <div className="p-5 rounded-2xl bg-zinc-900/40 border border-zinc-800/60 backdrop-blur-xl hover:border-purple-500/20 transition-all duration-300 space-y-4">
+        {/* Ferramentas Avançadas: Tomar Posse & Backup Drivers */}
+        <div className="p-5 rounded-2xl bg-zinc-900/40 border border-zinc-800/60 backdrop-blur-xl hover:border-purple-500/20 transition-all duration-300 flex flex-col justify-between">
           <div className="flex items-start gap-4">
             <div className="p-3 bg-indigo-500/10 rounded-xl text-indigo-400">
               <FileText className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-zinc-200 text-sm">Ferramentas de Contexto & Drivers</h4>
+              <h4 className="font-bold text-zinc-200 text-sm">Ferramentas Avançadas</h4>
               <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
-                Adicione o botão &quot;Tomar Posse&quot; ao menu de clique direito do Windows Explorer ou faça backup de drivers instalados em C:\Backup_Drivers.
+                Adiciona o menu de contexto &quot;Tomar Posse&quot; para arquivos/pastas ou realiza o backup completo de drivers instalados em C:\Backup_Drivers.
               </p>
             </div>
           </div>
-          <div className="flex gap-3 pt-2">
+          <div className="flex gap-3 pt-4 border-t border-zinc-800/50 mt-6">
             <button
               onClick={() => runAction("ownership", "SetTakeOwnership")}
               disabled={activeActions["ownership"]}
               className="flex-1 py-2 rounded-xl bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-750 text-xs font-bold transition-all flex items-center justify-center gap-1.5 text-zinc-300"
             >
-              {activeActions["ownership"] ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Menu Tomar Posse"}
+              {activeActions["ownership"] ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Tomar Posse"}
             </button>
             <button
               onClick={() => runAction("backup", "BackupDrivers")}

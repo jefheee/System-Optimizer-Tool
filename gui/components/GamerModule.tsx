@@ -195,14 +195,14 @@ export default function GamerModule() {
               disabled={activeActions["gamedvr"]}
               className="flex-1 min-w-[110px] py-2 rounded-xl bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-750 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
             >
-              {activeActions["gamedvr"] ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Desativar DVR"}
+              {activeActions["gamedvr"] ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Desativar Tela Cheia (FSO)"}
             </button>
             <button
               onClick={() => runAction("directx", "ResetDirectX")}
               disabled={activeActions["directx"]}
               className="flex-1 min-w-[110px] py-2 rounded-xl bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-750 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
             >
-              {activeActions["directx"] ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Limpar Shaders"}
+              {activeActions["directx"] ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "DirectX Shader Reset"}
             </button>
           </div>
         </div>
